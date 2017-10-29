@@ -53,6 +53,22 @@ Author:	HarvesteR
 MuxShield muxShield;
 Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 32, 2, true, true, true, false, false, false, false, true, false, false, false);
 
+
+class AxisCalibration
+{
+	public:
+	double max;
+	double min;
+	double center;
+
+	AxisCalibration(double pMin, double pCenter, double pMax)
+	{
+		max = pMax;
+		min = pMin;
+		center = pCenter;
+	}
+};
+
 const int axis_resolution = 1023;
 
 double xAxis;
@@ -61,28 +77,28 @@ double zAxis;
 double thrAxis;
 
 // calibration params
-double xMin = 430.0;
-double xCtr = 606.5;
-double xMax = 783.0;
-double yMin = 515.0;
-double yCtr = 656.5;
-double yMax = 798.0;
-
+AxisCalibration xCal = AxisCalibration(430.0, 606.5, 783.0);
+AxisCalibration yCal = AxisCalibration(515.0, 656.5, 798.0);
+AxisCalibration zCal = AxisCalibration(192.0, 156.0, 120.0);
 
 double x1, y1, x2, y2;
 
 const double smoothing = 0.5;
 double xOut, yOut, zOut;
 
+long binaryThrTLast = 0;
+bool binaryThrLast = 0;
+long binaryXTLast = 0;
+bool binaryXLast = 0;
+long binaryYTLast = 0;
+bool binaryYLast = 0;
+
+long binaryPulseTime = 100; 
+
+long centerCalibrateTime = 1000;
+long centerCalibrateTLast = 0;
 
 
-enum Mode
-{
-	NRM,
-	Calibrate_DefineCenter,
-	Calibrate_FindExtents
-};
-Mode mode;
 
 
 // the setup function runs once when you press reset or power the board
@@ -107,7 +123,6 @@ void setup()
 	//joystick.setAcceleratorRange(0, axis_resolution);
 	//joystick.setBrakeRange(0, axis_resolution);
 
-	mode = NRM;
 
 }
 
@@ -116,141 +131,134 @@ void setup()
 void loop()
 {
 
-	if (mode == NRM)
+	// 32 buttons, rows 1 and 2
+	// first 30 buttons
+	joystick.setButton(0, !muxShield.digitalReadMS(BTN1));
+	joystick.setButton(1, !muxShield.digitalReadMS(BTN2));
+	joystick.setButton(2, !muxShield.digitalReadMS(BTN3));
+	joystick.setButton(3, !muxShield.digitalReadMS(BTN4));
+	joystick.setButton(4, !muxShield.digitalReadMS(BTN5));
+	joystick.setButton(5, !muxShield.digitalReadMS(BTN6));
+	joystick.setButton(6, !muxShield.digitalReadMS(BTN7));
+	joystick.setButton(7, !muxShield.digitalReadMS(BTN8));
+	joystick.setButton(8, !muxShield.digitalReadMS(BTN9));
+	joystick.setButton(9, !muxShield.digitalReadMS(BTN10));
+
+
+	joystick.setButton(10, !muxShield.digitalReadMS(BTN11));
+	joystick.setButton(11, !muxShield.digitalReadMS(BTN12));
+	joystick.setButton(12, !muxShield.digitalReadMS(BTN13));
+	joystick.setButton(13, !muxShield.digitalReadMS(BTN14));
+	joystick.setButton(14, !muxShield.digitalReadMS(BTN15));
+	joystick.setButton(15, !muxShield.digitalReadMS(BTN16));
+	joystick.setButton(16, !muxShield.digitalReadMS(BTN17));
+	joystick.setButton(17, !muxShield.digitalReadMS(BTN18));
+	joystick.setButton(18, !muxShield.digitalReadMS(BTN19));
+	joystick.setButton(19, !muxShield.digitalReadMS(BTN20));
+
+
+	joystick.setButton(20, !muxShield.digitalReadMS(BTN21));
+	joystick.setButton(21, !muxShield.digitalReadMS(BTN22));
+	joystick.setButton(22, !muxShield.digitalReadMS(BTN23));
+	joystick.setButton(23, !muxShield.digitalReadMS(BTN24));
+	joystick.setButton(24, !muxShield.digitalReadMS(BTN25));
+	joystick.setButton(25, !muxShield.digitalReadMS(BTN26));
+	joystick.setButton(26, !muxShield.digitalReadMS(BTN27));
+
+	//two buttons are actually a rotary encoder
+	processEncoder(27, 28);
+
+	//joystick.setButton(19, !muxShield.digitalReadMS(BTN28));
+	//joystick.setButton(30, !muxShield.digitalReadMS(BTN29));
+	//joystick.setButton(31, !muxShield.digitalReadMS(BTN30));
+
+
+		// 10 axes, row 3, pins 0 to 9
+		// (well, we only have four at the moment, but the idea is to add more)
+
+	xAxis = muxShield.analogReadMS(3, 0);
+	yAxis = muxShield.analogReadMS(3, 1);
+	zAxis = muxShield.analogReadMS(3, 3);
+	thrAxis = muxShield.analogReadMS(3, 7);
+
+		
+	// center-finding happens for some time after startup or pressing the recalibration combo
+	if (millis() - centerCalibrateTLast < centerCalibrateTime)
 	{
-		// 32 buttons, rows 1 and 2
-		// first 30 buttons
-		joystick.setButton(0, !muxShield.digitalReadMS(BTN1));
-		joystick.setButton(1, !muxShield.digitalReadMS(BTN2));
-		joystick.setButton(2, !muxShield.digitalReadMS(BTN3));
-		joystick.setButton(3, !muxShield.digitalReadMS(BTN4));
-		joystick.setButton(4, !muxShield.digitalReadMS(BTN5));
-		joystick.setButton(5, !muxShield.digitalReadMS(BTN6));
-		joystick.setButton(6, !muxShield.digitalReadMS(BTN7));
-		joystick.setButton(7, !muxShield.digitalReadMS(BTN8));
-		joystick.setButton(8, !muxShield.digitalReadMS(BTN9));
-		joystick.setButton(9, !muxShield.digitalReadMS(BTN10));
-
-
-		joystick.setButton(10, !muxShield.digitalReadMS(BTN11));
-		joystick.setButton(11, !muxShield.digitalReadMS(BTN12));
-		joystick.setButton(12, !muxShield.digitalReadMS(BTN13));
-		joystick.setButton(13, !muxShield.digitalReadMS(BTN14));
-		joystick.setButton(14, !muxShield.digitalReadMS(BTN15));
-		joystick.setButton(15, !muxShield.digitalReadMS(BTN16));
-		joystick.setButton(16, !muxShield.digitalReadMS(BTN17));
-		joystick.setButton(17, !muxShield.digitalReadMS(BTN18));
-		joystick.setButton(18, !muxShield.digitalReadMS(BTN19));
-		joystick.setButton(19, !muxShield.digitalReadMS(BTN20));
-
-
-		joystick.setButton(20, !muxShield.digitalReadMS(BTN21));
-		joystick.setButton(21, !muxShield.digitalReadMS(BTN22));
-		joystick.setButton(22, !muxShield.digitalReadMS(BTN23));
-		joystick.setButton(23, !muxShield.digitalReadMS(BTN24));
-		joystick.setButton(24, !muxShield.digitalReadMS(BTN25));
-		joystick.setButton(25, !muxShield.digitalReadMS(BTN26));
-		joystick.setButton(26, !muxShield.digitalReadMS(BTN27));
-
-		//two buttons are actually a rotary encoder
-		processEncoder(27, 28);
-
-		//joystick.setButton(19, !muxShield.digitalReadMS(BTN28));
-		//joystick.setButton(30, !muxShield.digitalReadMS(BTN29));
-		//joystick.setButton(31, !muxShield.digitalReadMS(BTN30));
-
-
-			// 10 axes, row 3, pins 0 to 9
-			// (well, we only have four at the moment, but the idea is to add more)
-
-		xAxis = muxShield.analogReadMS(3, 0);
-		yAxis = muxShield.analogReadMS(3, 1);
-		zAxis = muxShield.analogReadMS(3, 3);
-		thrAxis = muxShield.analogReadMS(3, 7);
-
-
-		//Serial.print("X: "); Serial.print(xAxis); Serial.print("      Y: "); Serial.print(yAxis); Serial.print("    Z: "); Serial.print(zAxis); Serial.print("    Thr: "); Serial.println(thrAxis);
-
-		x1 = processAxisAdv(xAxis, 1.0, xMin, xCtr, xMax, 0.0);
-		y1 = processAxisAdv(yAxis, 1.0, yMin, yCtr, yMax, 0.0);
-		x2 = processAxisAdv(xAxis, 6.0, xMin, xCtr, xMax, 0.0);
-		y2 = processAxisAdv(yAxis, 6.0, yMin, yCtr, yMax, 0.0);
-
-		xAxis = lerp(x2, x1, min(pow(abs(x1), 1.0), 1.0));
-		yAxis = lerp(y2, y1, min(pow(abs(y1), 1.0), 1.0));
-
-		xAxis += x1 * 0.5 * abs(y1);
-		yAxis += y1 * 0.5 * abs(x1);
-
-		zAxis = processAxis(zAxis, 4.0, 192.0, 120.0, 0.0);
-		thrAxis = processAxis(thrAxis, 1.5, 276.0, 803.0, 0.0);
-
-		//Serial.print("X: "); Serial.print(xAxis); Serial.print("      Y: "); Serial.print(yAxis); Serial.print("    Z: "); Serial.print(zAxis); Serial.print("    Thr: "); Serial.println(thrAxis);
-
-		xOut = lerp(xOut, xAxis, smoothing);
-		yOut = lerp(yOut, yAxis, smoothing);
-		zOut = lerp(zOut, zAxis, smoothing);
-
-		joystick.setXAxis(xOut * 16384.0);
-		joystick.setYAxis(yOut * 16384.0);
-		joystick.setZAxis(zOut * 16384.0);
-		joystick.setThrottle(thrAxis * 16384.0);
-
-
-		if (PollCalibrationCombo())
-		{
-			mode = Calibrate_DefineCenter;
-			Serial.println("Calibrating... Leave Stick Centered and Press Button 1");
-
-		}
-	}
-	else if (mode == Calibrate_DefineCenter)
-	{
-		joystick.setButton(0, ((millis() % 1000) < 500 ? 1 : 0));
-
-		xCtr = lerp(xCtr, muxShield.analogReadMS(3, 0), 0.2);
-		yCtr = lerp(yCtr, muxShield.analogReadMS(3, 1), 0.2);
-
-		Serial.print("X: "); Serial.print(xCtr); Serial.print("      Y: "); Serial.println(yCtr);
-
-		if (!muxShield.digitalReadMS(BTN1))
-		{
-			mode = Calibrate_FindExtents;
+		xCal.center = lerp(xCal.center, xAxis, 0.2);
+		yCal.center = lerp(yCal.center, yAxis, 0.2);
+		zCal.center = lerp(zCal.center, zAxis, 0.2);
 			
-			joystick.setButton(0, 0);
-			Serial.println("Calibrating... Move Stick to find XY extents and Press Button 2");
+		xCal.max = xCal.center;
+		xCal.min = xCal.center;
+		yCal.min = yCal.center;
+		yCal.max = yCal.center;
+		zCal.min = zCal.center;
+		zCal.max = zCal.center;
 
-			xMax = xCtr;
-			xMin = xCtr;
-			yMax = yCtr;
-			yMin = yCtr;
-
-		}
-
+		delay(17);
+		return;
 	}
-	else if (mode == Calibrate_FindExtents)
+	else
 	{
-		joystick.setButton(1, ((millis() % 1000) < 500 ? 1 : 0));
+		// continuous calibration based on max deflection (x52 style)
+		xCal.max = max(xCal.max, xAxis);
+		xCal.min = min(xCal.min, xAxis);
+		yCal.max = max(yCal.max, yAxis);
+		yCal.min = min(yCal.min, yAxis);
+		zCal.min = min(zCal.min, zAxis);
+		zCal.max = max(zCal.max, zAxis);
+	}
+		
 
+	//Serial.print("X: "); Serial.print(xAxis); Serial.print("      Y: "); Serial.print(yAxis); Serial.print("    Z: "); Serial.print(zAxis); Serial.print("    Thr: "); Serial.println(thrAxis);
 
-		xMax = max((double)xMax, muxShield.analogReadMS(3, 0));
-		xMin = min((double)xMin, muxShield.analogReadMS(3, 0));
+	x1 = processAxisAdv(xAxis, 1.0, xCal.min, xCal.center, xCal.max, 0.0);
+	y1 = processAxisAdv(yAxis, 1.0, yCal.min, yCal.center, yCal.max, 0.0);
+	x2 = processAxisAdv(xAxis, 6.0, xCal.min, xCal.center, xCal.max, 0.0);
+	y2 = processAxisAdv(yAxis, 6.0, yCal.min, yCal.center, yCal.max, 0.0);
 
-		yMax = max((double)yMax, muxShield.analogReadMS(3, 1));
-		yMin = min((double)yMin, muxShield.analogReadMS(3, 1));
+	xAxis = lerp(x2, x1, min(pow(abs(x1), 1.0), 1.0));
+	yAxis = lerp(y2, y1, min(pow(abs(y1), 1.0), 1.0));
 
+	xAxis += x1 * 0.5 * abs(y1);
+	yAxis += y1 * 0.5 * abs(x1);
 
-		Serial.print("X Min: "); Serial.print(xMin); Serial.print("    X Max: "); Serial.print(xMax); Serial.print("      Y Min: "); Serial.print(yMin); Serial.print("      Y Max: "); Serial.println(yMax);
+	zAxis = processAxisAdv(zAxis, 4.0, zCal.min, zCal.center, zCal.max, 0.05);
+	thrAxis = processAxis(thrAxis, 1.5, 276.0, 803.0, 0.0);
 
-		if (!muxShield.digitalReadMS(BTN2))
-		{
-			mode = NRM;
-			Serial.println("Done!");
-			joystick.setButton(1, 0);
-		}
+	//Serial.print("X: "); Serial.print(xAxis); Serial.print("      Y: "); Serial.print(yAxis); Serial.print("    Z: "); Serial.print(zAxis); Serial.print("    Thr: "); Serial.println(thrAxis);
+
+	xOut = lerp(xOut, xAxis, smoothing);
+	yOut = lerp(yOut, yAxis, smoothing);
+	zOut = lerp(zOut, zAxis, smoothing);
+
+	joystick.setXAxis(xOut * 16384.0);
+	joystick.setYAxis(yOut * 16384.0);
+	joystick.setZAxis(zOut * 16384.0);
+	joystick.setThrottle(thrAxis * 16384.0);
+
+	if (thrAxis > 0 && !binaryThrLast)
+	{
+		binaryThrLast = true;
+		binaryThrTLast = millis() + binaryPulseTime;
 	}
 
-	//	Serial.flush();
+	if (thrAxis < 0 && binaryThrLast)
+	{
+		binaryThrLast = false;
+		binaryThrTLast = millis() + binaryPulseTime;
+	}
+	joystick.setButton(29, binaryThrTLast > millis());
+
+
+
+	if (PollCalibrationCombo())
+	{
+		centerCalibrateTLast = millis();
+	}
+	
+
 
 	delay(17);
 }
@@ -343,21 +351,6 @@ double lerp(double v0, double v1, double t)
 
 bool PollCalibrationCombo()
 {
-	if (!muxShield.digitalReadMS(BTN4) &&
-		!muxShield.digitalReadMS(BTN5) &&
-		!muxShield.digitalReadMS(BTN9) &&
-		!muxShield.digitalReadMS(BTN10) &&
-		!muxShield.digitalReadMS(BTN27))
-	{
-		joystick.setButton(3,0);
-		joystick.setButton(4,0);
-		joystick.setButton(8,0);
-		joystick.setButton(9,0);
-		joystick.setButton(26, 0);
-
-		return true;
-	}
-	else 
-		return false;
+	return !muxShield.digitalReadMS(BTN4) && !muxShield.digitalReadMS(BTN5) && !muxShield.digitalReadMS(BTN9) && !muxShield.digitalReadMS(BTN10) && !muxShield.digitalReadMS(BTN27);
 }
 
