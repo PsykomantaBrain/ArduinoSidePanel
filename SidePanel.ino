@@ -76,6 +76,8 @@ double yAxis;
 double zAxis;
 double thrAxis;
 
+double stickAngle;
+
 // calibration params
 AxisCalibration xCal = AxisCalibration(430.0, 606.5, 783.0);
 AxisCalibration yCal = AxisCalibration(515.0, 656.5, 798.0);
@@ -238,6 +240,8 @@ void loop()
 	joystick.setZAxis(zOut * 16384.0);
 	joystick.setThrottle(thrAxis * 16384.0);
 
+
+	// pulse button 30 whenever the throttle axis moves through the center
 	if (thrAxis > 0 && !binaryThrLast)
 	{
 		binaryThrLast = true;
@@ -252,13 +256,26 @@ void loop()
 	joystick.setButton(29, binaryThrTLast > millis());
 
 
+	// deflecting the main stick also controls the hat switch (allows mapping the stick to binary bindings in games)
+	if (abs(xAxis) > 0.5 || abs(yAxis) > 0.5)
+	{
+		stickAngle = atan2(yAxis, xAxis) * RAD_TO_DEG;
+		stickAngle += 112.5;
+
+		if (stickAngle < 360.0) stickAngle += 360.0;
+		if (stickAngle > 360.0) stickAngle -= 360.0;
+
+		joystick.setHatSwitch(0, stickAngle);
+	}
+	else
+	{
+		joystick.setHatSwitch(0, -1);
+	}
 
 	if (PollCalibrationCombo())
 	{
 		centerCalibrateTLast = millis();
 	}
-	
-
 
 	delay(17);
 }
