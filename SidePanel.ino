@@ -50,8 +50,11 @@ Author:	HarvesteR
 
 #define sign(x) ((x) > 0 ? 1: ((x) < 0 ? -1 : 0))
 
+#define STICK_ROTATION_DEG -20
+
+
 MuxShield muxShield;
-Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 32, 2, true, true, true, false, false, false, false, true, false, false, false);
+Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 52, 0, true, true, true, true, true, true, false, false, false, false, false);
 
 
 class AxisCalibration
@@ -75,6 +78,8 @@ double xAxis;
 double yAxis;
 double zAxis;
 double thrAxis;
+double sl1Axis;
+double sl2Axis;
 
 double stickAngle;
 
@@ -86,22 +91,30 @@ AxisCalibration zCal = AxisCalibration(192.0, 156.0, 120.0);
 double x1, y1, x2, y2;
 
 const double smoothing = 0.5;
+double xRot, yRot;
 double xOut, yOut, zOut;
+double sl1, sl2;
 
 long binaryThrTLast = 0;
 bool binaryThrLast = 0;
-long binaryXTLast = 0;
-bool binaryXLast = 0;
-long binaryYTLast = 0;
-bool binaryYLast = 0;
+long toggle1TLast = 0;
+bool toggle1Last = 0;
+long toggle2TLast = 0;
+bool toggle2Last = 0;
 
-long binaryPulseTime = 100; 
+long binaryPulseTime = 100;
 
 long centerCalibrateTime = 1000;
+long extentsCalibrateTime = 10000;
 long centerCalibrateTLast = 0;
 
+int encoderCount = 0;
+long encoderTLast = 0;
 
+double rCos, rSin;
 
+bool sendSwitch29Pulses = true;
+bool sendSwitch30Pulses = true;
 
 // the setup function runs once when you press reset or power the board
 void setup()
@@ -117,14 +130,17 @@ void setup()
 	joystick.setXAxisRange(-16384, 16384);
 	joystick.setYAxisRange(-16384, 16384);
 	joystick.setZAxisRange(-16384, 16384);
-	//joystick.setRxAxisRange(0, axis_resolution);
-	//joystick.setRyAxisRange(0, axis_resolution);
-	//joystick.setRzAxisRange(0, axis_resolution);
-	joystick.setThrottleRange(-16384, 16384);
-	//joystick.setRudderRange(0, axis_resolution);
-	//joystick.setAcceleratorRange(0, axis_resolution);
-	//joystick.setBrakeRange(0, axis_resolution);
+	joystick.setRxAxisRange(-16384, 16384);
+	joystick.setRyAxisRange(-16384, 16384);
+	joystick.setRzAxisRange(-16384, 16384);
+	//joystick.setThrottleRange(-16384, 16384);
+	//joystick.setRudderRange(-16384, 16384);
+	//joystick.setAcceleratorRange(-16384, 16384);
+	//joystick.setBrakeRange(-16384, 16384);
 
+	double stickRotation = STICK_ROTATION_DEG * DEG_TO_RAD;
+	rCos = cos(stickRotation);
+	rSin = sin(stickRotation);
 
 }
 
@@ -167,30 +183,59 @@ void loop()
 	joystick.setButton(25, !muxShield.digitalReadMS(BTN26));
 	joystick.setButton(26, !muxShield.digitalReadMS(BTN27));
 
-	//two buttons are actually a rotary encoder
+	// buttons 27, 28 are the rotary encoder
 	processEncoder(27, 28);
 
-	//joystick.setButton(19, !muxShield.digitalReadMS(BTN28));
-	//joystick.setButton(30, !muxShield.digitalReadMS(BTN29));
-	//joystick.setButton(31, !muxShield.digitalReadMS(BTN30));
+	// button 29 is underside toggle switch
+	if (sendSwitch29Pulses)
+	{
+		if (muxShield.digitalReadMS(BTN29) != toggle1Last)
+		{
+			toggle1Last = muxShield.digitalReadMS(BTN29);
+			toggle1TLast = millis() + binaryPulseTime;
+		}
+		joystick.setButton(29, toggle1TLast > millis());
+	}
+	joystick.setButton(40, muxShield.digitalReadMS(BTN29));
 
 
-		// 10 axes, row 3, pins 0 to 9
-		// (well, we only have four at the moment, but the idea is to add more)
+	// button 30 is the sidewall toggle
+	if (sendSwitch30Pulses)
+	{
+		if (muxShield.digitalReadMS(BTN30) != toggle2Last)
+		{
+			toggle2Last = muxShield.digitalReadMS(BTN30);
+			toggle2TLast = millis() + binaryPulseTime;
+		}
+		joystick.setButton(30, toggle2TLast > millis());
+	}
+	joystick.setButton(41, !muxShield.digitalReadMS(BTN30));
+
+	// button 31 is the side switch with cover
+	joystick.setButton(31, !muxShield.digitalReadMS(BTN28));
+
+
+
+
+	// 10 axes, row 3, pins 0 to 9
+	// (well, we only have six at the moment, but the idea is to add more)
 
 	xAxis = muxShield.analogReadMS(3, 0);
 	yAxis = muxShield.analogReadMS(3, 1);
 	zAxis = muxShield.analogReadMS(3, 3);
-	thrAxis = muxShield.analogReadMS(3, 7);
 
-		
+	thrAxis = muxShield.analogReadMS(3, 7);
+	sl1Axis = muxShield.analogReadMS(3, 14);
+	sl2Axis = muxShield.analogReadMS(3, 15);
+
+
 	// center-finding happens for some time after startup or pressing the recalibration combo
 	if (millis() - centerCalibrateTLast < centerCalibrateTime)
 	{
 		xCal.center = lerp(xCal.center, xAxis, 0.2);
 		yCal.center = lerp(yCal.center, yAxis, 0.2);
 		zCal.center = lerp(zCal.center, zAxis, 0.2);
-			
+
 		xCal.max = xCal.center;
 		xCal.min = xCal.center;
 		yCal.min = yCal.center;
@@ -201,9 +246,9 @@ void loop()
 		delay(17);
 		return;
 	}
-	else
+	else if (millis() - centerCalibrateTLast < extentsCalibrateTime)
 	{
-		// continuous calibration based on max deflection (x52 style)
+		// continuous calibration based on max deflection (x52 style) for extents calibration time  (then it stops)
 		xCal.max = max(xCal.max, xAxis);
 		xCal.min = min(xCal.min, xAxis);
 		yCal.max = max(yCal.max, yAxis);
@@ -211,9 +256,9 @@ void loop()
 		zCal.min = min(zCal.min, zAxis);
 		zCal.max = max(zCal.max, zAxis);
 	}
-		
 
-	//Serial.print("X: "); Serial.print(xAxis); Serial.print("      Y: "); Serial.print(yAxis); Serial.print("    Z: "); Serial.print(zAxis); Serial.print("    Thr: "); Serial.println(thrAxis);
+
+	//Serial.print("X: "); Serial.print(xAxis); Serial.print("      Y: "); Serial.print(yAxis); Serial.print("    Z: "); Serial.print(zAxis); Serial.print("    Thr: "); Serial.print(thrAxis);  Serial.print("    S1: "); Serial.print(sl1Axis); Serial.print("    S2: "); Serial.println(sl2Axis);
 
 	x1 = processAxisAdv(xAxis, 1.0, xCal.min, xCal.center, xCal.max, 0.0);
 	y1 = processAxisAdv(yAxis, 1.0, yCal.min, yCal.center, yCal.max, 0.0);
@@ -226,55 +271,68 @@ void loop()
 	xAxis += x1 * 0.5 * abs(y1);
 	yAxis += y1 * 0.5 * abs(x1);
 
-	zAxis = processAxisAdv(zAxis, 4.0, zCal.min, zCal.center, zCal.max, 0.05);
+	zAxis = -processAxisAdv(zAxis, 4.0, zCal.min, zCal.center, zCal.max, 0.05);
+
 	thrAxis = processAxis(thrAxis, 1.5, 276.0, 803.0, 0.0);
+	sl1Axis = processAxis(sl1Axis, 1, 18.0, 1023.0, 0.0);
+	sl2Axis = processAxis(sl2Axis, 1, 18.0, 1023.0, 0.0);
 
-	//Serial.print("X: "); Serial.print(xAxis); Serial.print("      Y: "); Serial.print(yAxis); Serial.print("    Z: "); Serial.print(zAxis); Serial.print("    Thr: "); Serial.println(thrAxis);
+	//Serial.print("X: "); Serial.print(xAxis); Serial.print("      Y: "); Serial.print(yAxis); Serial.print("    Z: "); Serial.print(zAxis); Serial.print("    Thr: "); Serial.print(thrAxis);  Serial.print("    S1: "); Serial.print(sl1Axis); Serial.print("    S2: "); Serial.println(sl2Axis);
 
-	xOut = lerp(xOut, xAxis, smoothing);
-	yOut = lerp(yOut, yAxis, smoothing);
+	// apply rotation to XY axes (because the sidepanel is mounted to the side and it's more natural to push it at an angle)
+	xRot = xAxis * rCos + yAxis * rSin;
+	yRot = -xAxis * rSin + yAxis * rCos;
+
+
+	xOut = lerp(xOut, xRot, smoothing);
+	yOut = lerp(yOut, yRot, smoothing);
 	zOut = lerp(zOut, zAxis, smoothing);
 
 	joystick.setXAxis(xOut * 16384.0);
 	joystick.setYAxis(yOut * 16384.0);
 	joystick.setZAxis(zOut * 16384.0);
-	joystick.setThrottle(thrAxis * 16384.0);
 
 
-	// pulse button 30 whenever the throttle axis moves through the center
-	if (thrAxis > 0 && !binaryThrLast)
-	{
-		binaryThrLast = true;
-		binaryThrTLast = millis() + binaryPulseTime;
-	}
+	sl1 = lerp(sl1, sl1Axis * 16384.0, smoothing);
+	sl2 = lerp(sl2, sl2Axis * 16384.0, smoothing);
+	joystick.setRxAxis(sl1);
+	joystick.setRyAxis(sl2);
 
-	if (thrAxis < 0 && binaryThrLast)
-	{
-		binaryThrLast = false;
-		binaryThrTLast = millis() + binaryPulseTime;
-	}
-	joystick.setButton(29, binaryThrTLast > millis());
+	joystick.setRzAxis(thrAxis * 16384.0);
+
+	processAxisButtons(thrAxis, &binaryThrLast, &binaryThrTLast, 42, 43, 44, -0.9, 0.9);
+	//processAxisButtons(sl1Axis, 0, 0, -1, 45, 46, -0.66, 0.66);
+	//processAxisButtons(sl2Axis, 0, 0, -1, 47, 48, -0.66, 0.66);
+	processAxisButtons(zAxis, 0, 0, -1, 49, 50, -0.8, 0.8);
+
 
 
 	// deflecting the main stick also controls the hat switch (allows mapping the stick to binary bindings in games)
-	if (abs(xAxis) > 0.5 || abs(yAxis) > 0.5)
+	// hat takes up buttons 32 through 39
+	if (abs(xOut) > 0.5 || abs(yOut) > 0.5)
 	{
-		stickAngle = atan2(yAxis, xAxis) * RAD_TO_DEG;
+		stickAngle = atan2(yOut, xOut) * RAD_TO_DEG;
 		stickAngle += 112.5;
 
-		if (stickAngle < 360.0) stickAngle += 360.0;
-		if (stickAngle > 360.0) stickAngle -= 360.0;
-
-		joystick.setHatSwitch(0, stickAngle);
+		//joystick.setHatSwitch(1, stickAngle);
+		setHat(stickAngle, 32);
 	}
 	else
 	{
-		joystick.setHatSwitch(0, -1);
+		//joystick.setHatSwitch(1, -1);
+		setHat(-1, 32);
 	}
 
 	if (PollCalibrationCombo())
 	{
-		centerCalibrateTLast = millis();
+		if (!muxShield.digitalReadMS(BTN27))
+			centerCalibrateTLast = millis();
+
+		if (!muxShield.digitalReadMS(BTN28))
+		{
+			sendSwitch30Pulses = !muxShield.digitalReadMS(BTN30);
+			sendSwitch29Pulses = !muxShield.digitalReadMS(BTN29);
+		}
 	}
 
 	delay(17);
@@ -300,18 +358,44 @@ int8_t read_encoder(int A, int B)
 void processEncoder(int rIdxA, int rIdxB)
 {
 	int8_t rotary = read_encoder(muxShield.digitalReadMS(ROTARYA), muxShield.digitalReadMS(ROTARYB));
-	if (rotary > 0)
+
+	// awkward and ugly debouncing here, but I don't feel like rewiring the encoder to the interrupt lines
+
+	// the current decouncing scheme works by acummulating encoder reads before emitting actual input. 
+	// doing this averages out the encoder signal to eliminate false readings (inputting left when rotated right, and so on)
+	// somewhat analogous to a 'software capacitor'.
+
+	// This scheme does not do much to even out the frequency of inputs as the encoder turns though.
+	// another issue is that turning the encoder very quickly results in lots of bad reads and no input sent. Turn encoder gently.
+
+	if (rotary != 0 && abs(encoderCount) <= 1)
 	{
-		joystick.pressButton(rIdxA);
+		//delay(2);
+		encoderCount += rotary;
+
+		if (abs(encoderCount) > 1)
+		{
+			if (encoderCount > 0)
+			{
+				joystick.pressButton(rIdxA);
+			}
+			if (encoderCount < 0)
+			{
+				joystick.pressButton(rIdxB);
+			}
+
+			encoderTLast = millis() + binaryPulseTime;
+		}
 	}
-	else
+
+	if (encoderTLast > 0 && encoderTLast < millis())
+	{
+		joystick.releaseButton(rIdxB);
 		joystick.releaseButton(rIdxA);
 
-
-	if (rotary < 0)
-		joystick.pressButton(rIdxB);
-	else
-		joystick.releaseButton(rIdxB);
+		encoderTLast = 0;
+		encoderCount = 0;
+	}
 }
 
 
@@ -368,6 +452,58 @@ double lerp(double v0, double v1, double t)
 
 bool PollCalibrationCombo()
 {
-	return !muxShield.digitalReadMS(BTN4) && !muxShield.digitalReadMS(BTN5) && !muxShield.digitalReadMS(BTN9) && !muxShield.digitalReadMS(BTN10) && !muxShield.digitalReadMS(BTN27);
+	return !muxShield.digitalReadMS(BTN4) && !muxShield.digitalReadMS(BTN5) && !muxShield.digitalReadMS(BTN9) && !muxShield.digitalReadMS(BTN10);
 }
 
+
+void processAxisButtons(double axis, bool *axisLast, long *axisTLast, int btnFlick, int btnMin, int btnMax, double minThreshold, double maxThreshold)
+{
+	if (btnFlick != -1)
+	{
+		// pulse 'flick' button whenever the axis moves through the center
+		if (axis > 0 && !*axisLast)
+		{
+			*axisLast = true;
+			*axisTLast = millis() + binaryPulseTime;
+		}
+		if (axis < 0 && *axisLast)
+		{
+			*axisLast = false;
+			*axisTLast = millis() + binaryPulseTime;
+		}
+
+		joystick.setButton(btnFlick, *axisTLast > millis());
+	}
+
+	// buttons 35 and 36 are on when the axis is at min and max
+	if (btnMin != -1)
+		joystick.setButton(btnMin, axis < minThreshold);
+	if (btnMax != -1)
+		joystick.setButton(btnMax, axis > maxThreshold);
+
+}
+
+int hatAngle;
+void setHat(int angle, int firstButton)
+{
+	// the 'hat' switch is actually a group of buttons, because some games apparently read hats are other axes
+	if (angle != -1)
+	{
+		if (angle < 360.0) angle += 360;
+		if (angle > 360.0) angle -= 360;
+		hatAngle = angle / 45;
+	}
+	else
+	{
+		hatAngle = -1;
+	}
+
+	joystick.setButton(firstButton, hatAngle == 0);
+	joystick.setButton(firstButton + 1, hatAngle == 1);
+	joystick.setButton(firstButton + 2, hatAngle == 2);
+	joystick.setButton(firstButton + 3, hatAngle == 3);
+	joystick.setButton(firstButton + 4, hatAngle == 4);
+	joystick.setButton(firstButton + 5, hatAngle == 5);
+	joystick.setButton(firstButton + 6, hatAngle == 6);
+	joystick.setButton(firstButton + 7, hatAngle == 7);
+}
