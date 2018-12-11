@@ -1,0 +1,4 @@
+# Collective build property overrides
+#
+arduino_due_x.build.usb_manufacturer="HarvesteR"
+arduino_due_x.build.usb_product="HRV Collective"
