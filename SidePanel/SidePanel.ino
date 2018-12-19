@@ -3,6 +3,7 @@ Name:		test.ino
 Created:	7/19/2017 2:52:44 PM
 Author:	HarvesteR
 */
+#include <SoftReset.h>
 #include "MuxShield.h"
 #include "Joystick.h"
 
@@ -115,6 +116,13 @@ double rCos, rSin;
 
 bool sendSwitch29Pulses = true;
 bool sendSwitch30Pulses = true;
+
+// software reset function 
+void softReset() 
+{
+	joystick.end();
+	soft_restart();
+}
 
 // the setup function runs once when you press reset or power the board
 void setup()
@@ -325,6 +333,9 @@ void loop()
 
 	if (PollCalibrationCombo())
 	{
+		if (!muxShield.digitalReadMS(BTN25)) // btn 25 is the red button on top of the stick
+			softReset();
+
 		if (!muxShield.digitalReadMS(BTN27))
 			centerCalibrateTLast = millis();
 

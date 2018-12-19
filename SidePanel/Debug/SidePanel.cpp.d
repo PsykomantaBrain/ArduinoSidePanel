@@ -13,6 +13,7 @@ C:\Users\HarvesteR\AppData\Local\Temp\VMBuilds\SidePanel\leonardo\Debug\SidePane
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/USBDesc.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/USBCore.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\variants\leonardo/pins_arduino.h \
+ D:\HarvesteR\Documents\Arduino\libraries\SoftReset-master/SoftReset.h \
  D:\HarvesteR\Documents\Arduino\libraries\MuxShield/MuxShield.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
  D:\HarvesteR\Documents\Arduino\libraries\Joystick\src/Joystick.h \
