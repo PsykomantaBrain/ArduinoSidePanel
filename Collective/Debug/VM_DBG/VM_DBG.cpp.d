@@ -135,4 +135,5 @@ C:\Users\HarvesteR\AppData\Local\Temp\VMBuilds\Collective\arduino_due_x\Debug\VM
  C:\Users\HarvesteR\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\cores\arduino/USB/USBCore.h \
  C:\Users\HarvesteR\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\cores\arduino/USB/USBAPI.h \
  C:\Users\HarvesteR\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\cores\arduino/RingBuffer.h \
- C:\Users\HarvesteR\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\cores\arduino/Stream.h
+ C:\Users\HarvesteR\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\cores\arduino/Stream.h \
+ C:\Program\ Files\ (x86)\Microsoft\ Visual\ Studio\2017\Enterprise\Common7\IDE\Extensions\pq0yofgn.yje\Micro\ Platforms\default\debuggers\VM_DBG\VM_Boards.h

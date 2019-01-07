@@ -53,6 +53,11 @@ Author:	HarvesteR
 
 #define STICK_ROTATION_DEG -20
 
+#define JOYSTICK_RANGE_MIN 0
+#define JOYSTICK_RANGE_MAX 1023
+#define JOYSTICK_TRAVEL 512 // should be half of the range
+#define JOYSTICK_CENTER 512
+
 
 MuxShield muxShield;
 Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 52, 0, true, true, true, true, true, true, false, false, false, false, false);
@@ -117,6 +122,8 @@ double rCos, rSin;
 bool sendSwitch29Pulses = true;
 bool sendSwitch30Pulses = true;
 
+
+
 // software reset function 
 void softReset() 
 {
@@ -133,18 +140,20 @@ void setup()
 	muxShield.setMode(2, DIGITAL_IN_PULLUP);
 	muxShield.setMode(3, DIGITAL_IN_PULLUP);
 
-	joystick.begin();
 
-	joystick.setXAxisRange(-16384, 16384);
-	joystick.setYAxisRange(-16384, 16384);
-	joystick.setZAxisRange(-16384, 16384);
-	joystick.setRxAxisRange(-16384, 16384);
-	joystick.setRyAxisRange(-16384, 16384);
-	joystick.setRzAxisRange(-16384, 16384);
+	joystick.setXAxisRange(JOYSTICK_RANGE_MIN,   JOYSTICK_RANGE_MAX);
+	joystick.setYAxisRange(JOYSTICK_RANGE_MIN,   JOYSTICK_RANGE_MAX);
+	joystick.setZAxisRange(JOYSTICK_RANGE_MIN,   JOYSTICK_RANGE_MAX);
+	joystick.setRxAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+	joystick.setRyAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+	joystick.setRzAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+		
 	//joystick.setThrottleRange(-16384, 16384);
 	//joystick.setRudderRange(-16384, 16384);
 	//joystick.setAcceleratorRange(-16384, 16384);
 	//joystick.setBrakeRange(-16384, 16384);
+
+	joystick.begin();
 
 	double stickRotation = STICK_ROTATION_DEG * DEG_TO_RAD;
 	rCos = cos(stickRotation);
@@ -296,17 +305,16 @@ void loop()
 	yOut = lerp(yOut, yRot, smoothing);
 	zOut = lerp(zOut, zAxis, smoothing);
 
-	joystick.setXAxis(xOut * 16384.0);
-	joystick.setYAxis(yOut * 16384.0);
-	joystick.setZAxis(zOut * 16384.0);
+	joystick.setXAxis(xOut *      JOYSTICK_TRAVEL + JOYSTICK_CENTER);
+	joystick.setYAxis(yOut *      JOYSTICK_TRAVEL + JOYSTICK_CENTER);
+	joystick.setZAxis(zOut *      JOYSTICK_TRAVEL + JOYSTICK_CENTER);
+	joystick.setRzAxis(thrAxis * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
+	sl1 = lerp(sl1, sl1Axis *       JOYSTICK_TRAVEL + JOYSTICK_CENTER, smoothing);
+	sl2 = lerp(sl2, sl2Axis *       JOYSTICK_TRAVEL + JOYSTICK_CENTER, smoothing);
 
-
-	sl1 = lerp(sl1, sl1Axis * 16384.0, smoothing);
-	sl2 = lerp(sl2, sl2Axis * 16384.0, smoothing);
 	joystick.setRxAxis(sl1);
 	joystick.setRyAxis(sl2);
 
-	joystick.setRzAxis(thrAxis * 16384.0);
 
 	processAxisButtons(thrAxis, &binaryThrLast, &binaryThrTLast, 42, 43, 44, -0.9, 0.9);
 	//processAxisButtons(sl1Axis, 0, 0, -1, 45, 46, -0.66, 0.66);
