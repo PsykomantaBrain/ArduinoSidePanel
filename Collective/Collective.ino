@@ -1,18 +1,66 @@
 
 #include "Joystick.h"
-
-
-Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 52, 0, true, true, true, false, false, false , false, true, false, false, false);
-
-
-
 #define sign(x) ((x) > 0 ? 1: ((x) < 0 ? -1 : 0))
 
-//pin mappings
+// head matrix mapping
+// see https://www.tinkercad.com/things/fCHrucmTHlC-collective-head-wiring for the wiring
+
+//High impedance pin mode
+#define OUTPUT_OFF INPUT_PULLUP
+
+#define MxA 40
+#define MxB 44
+#define MxC 48
+#define MxD 52
+#define MxE 50
+
+#define Mx0 34
+#define Mx1 38
+#define Mx2 42
+#define Mx3 46
+
+#define ASrc 38
+
+
+
+// pin mappings
 #define BTN4 10
 #define BTN5 11
+#define AXIS_X 0
+#define AXIS_Y 1
 #define AXIS_COLL 2
 #define AXIS_THR 3
+// axis output #define JOYSTICK_RANGE_MIN 0
+#define JOYSTICK_RANGE_MAX 1023
+#define JOYSTICK_TRAVEL 512 // should be half of the range
+#define JOYSTICK_CENTER 512
+
+
+// button output mapping
+#define Trg 0
+#define THBS 1
+#define SLR 2
+#define HS 3
+#define GpR 4
+#define GpK 5
+
+#define RG 6
+#define DG 7
+#define TSL_up 8
+#define TSL_Dn 9
+#define TSR_Up 10
+#define TSR_Dn 11
+#define RTH_lf 13
+#define RTH_rt 12
+#define IDF 14
+#define IDB 15
+
+#define NavUp 16
+#define NavRight 17
+#define NavDown 18
+#define NavLeft 19
+#define NavCtr 20
+
 
 class AxisCalibration
 {
@@ -28,28 +76,110 @@ class AxisCalibration
 		center = pCenter;
 	}
 };
-// axis inputsAxisCalibration axisColl = AxisCalibration(0, 2048, 4096);
-AxisCalibration axisTwist = AxisCalibration(0, 2048, 4096);
-AxisCalibration axisX = AxisCalibration(0, 2048, 4096);
-AxisCalibration axisY = AxisCalibration(0, 2048, 4096);//axis output #define JOYSTICK_RANGE_MIN 0
-#define JOYSTICK_RANGE_MAX 1023
-#define JOYSTICK_TRAVEL 512 // should be half of the range
-#define JOYSTICK_CENTER 512double zOut, tOut;
-void setup(){	//Serial.begin(115200);	pinMode(BTN4, INPUT_PULLUP);
-	pinMode(BTN5, INPUT_PULLUP);	analogReadResolution(12);
+// axis inputsAxisCalibration axisColl = AxisCalibration(0, 2048, 4095);
+AxisCalibration axisTwist = AxisCalibration(0, 2048, 4095);
+AxisCalibration axisX = AxisCalibration(1800, 2770, 4095);
+AxisCalibration axisY = AxisCalibration(1630, 2813, 4095);int headA;int headB;int headC;int headD;int headE;double xOut, yOut, zOut, tOut;
+
+Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 21, 0, true, true, true, false, false, false, false, true, false, false, false);
+void setup(){	pinMode(BTN4, INPUT_PULLUP);
+	pinMode(BTN5, INPUT_PULLUP);	
+	pinMode(Mx0, INPUT);
+	pinMode(Mx1, INPUT);
+	pinMode(Mx2, INPUT);
+	pinMode(Mx3, INPUT);
+
+	pinMode(MxA, OUTPUT_OFF);
+	pinMode(MxB, OUTPUT_OFF);
+	pinMode(MxC, OUTPUT_OFF);
+	pinMode(MxD, OUTPUT_OFF);
+	pinMode(MxE, OUTPUT_OFF);
+	analogReadResolution(12);
 
 	joystick.begin();
 	joystick.setXAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	joystick.setYAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	joystick.setZAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	joystick.setThrottleRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
-	}void loop(){
+	}void loop(){
+	// head controls
+
+
+	// group A (Nav A, Thbs, SLR, HS)
+	readHeadMatrixGroup(MxA, &headA);
+	joystick.setButton(NavRight, headA & 0x1);
+	joystick.setButton(THBS, headA & 0x2);
+	joystick.setButton(SLR, headA & 0x4);
+	joystick.setButton(HS, headA & 0x8);
+	
+	
+	// group B (Nav B, RG, DG, TSR+)
+	readHeadMatrixGroup(MxB, &headB);
+	joystick.setButton(NavDown, headB & 0x1);
+	joystick.setButton(RG, headB & 0x2);
+	joystick.setButton(DG, headB & 0x4);
+	joystick.setButton(TSR_Up, headB & 0x8);
+	
+	
+	// group C (Nav C, TSL+, TSL-, TSR-)
+	readHeadMatrixGroup(MxC, &headC);
+	joystick.setButton(NavUp, headC & 0x1);
+	joystick.setButton(TSL_up, headC & 0x2);
+	joystick.setButton(TSL_Dn, headC & 0x4);
+	joystick.setButton(TSR_Dn, headC & 0x8);
+	
+	// group D (Nav D, RTH-L, RTH-R, unused)
+	readHeadMatrixGroup(MxD, &headD);
+	joystick.setButton(NavLeft, headD & 0x1);
+	joystick.setButton(RTH_lf, headD & 0x2);
+	joystick.setButton(RTH_rt, headD & 0x4);
+	
+	// group E (Nav E, Trg, IDF, IDB)
+	readHeadMatrixGroup(MxE, &headE);
+	joystick.setButton(NavCtr, headE & 0x1);
+	joystick.setButton(Trg, headE & 0x2);
+	joystick.setButton(IDF, headE & 0x4);
+	joystick.setButton(IDB, headE & 0x8);
+
+
+
+	xOut = processAxisAdv(analogRead(AXIS_X), 1.0, axisX.min, axisX.center, axisTwist.max, 0.0);
+	yOut = processAxisAdv(analogRead(AXIS_Y), 1.0, axisY.min, axisY.center, axisY.max, 0.0);
+
+
+	joystick.setXAxis(xOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
+	joystick.setYAxis(yOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
+
+	// grip controls
 	zOut = processAxisAdv(analogRead(AXIS_COLL), 1.0, axisColl.min, axisColl.center, axisColl.max, 0.0);
 	tOut = processAxisAdv(analogRead(AXIS_THR), 1.0, axisTwist.min, axisTwist.center, axisTwist.max, 0.0);
 	
 	joystick.setZAxis(zOut *  JOYSTICK_TRAVEL + JOYSTICK_CENTER);
-	joystick.setThrottle(tOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);	joystick.setButton(4, digitalRead(BTN4) == LOW);
-	joystick.setButton(5, digitalRead(BTN5) == LOW);		delay(20);}double lerp(double v0, double v1, double t){	return (1.0 - t) * v0 + t * v1;}double map(double x, double in_min, double in_max, double out_min, double out_max){	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;}
+	joystick.setThrottle(tOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);	joystick.setButton(GpR, digitalRead(BTN4) == LOW);
+	joystick.setButton(GpK, digitalRead(BTN5) == LOW);		delay(20);}void readHeadMatrixGroup(int group, int *mxBits){	*mxBits = 0x0;	pinMode(group, OUTPUT);
+	digitalWrite(group, LOW);
+
+	pinMode(Mx0, INPUT_PULLUP);
+	if (digitalRead(Mx0) == LOW)
+		*mxBits |= 0x1;
+	pinMode(Mx0, INPUT);
+
+	pinMode(Mx1, INPUT_PULLUP);
+	if (digitalRead(Mx1) == LOW)
+		*mxBits |= 0x2;
+	pinMode(Mx1, INPUT);
+
+	pinMode(Mx2, INPUT_PULLUP);
+	if (digitalRead(Mx2) == LOW)
+		*mxBits |= 0x4;		
+	pinMode(Mx2, INPUT);
+
+	pinMode(Mx3, INPUT_PULLUP);
+	if (digitalRead(Mx3) == LOW)
+		*mxBits |= 0x8;
+	pinMode(Mx3, INPUT);
+
+	pinMode(group, OUTPUT_OFF);}double lerp(double v0, double v1, double t){	return (1.0 - t) * v0 + t * v1;}double map(double x, double in_min, double in_max, double out_min, double out_max){	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;}
 double processAxis(int raw, double response, double inMin, double inMax, double deadzone)
 {
 	double axis = map((double)raw, inMin, inMax, -1.0, 1.0);
