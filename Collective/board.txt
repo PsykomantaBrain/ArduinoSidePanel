@@ -1,4 +1,9 @@
 # Collective build property overrides
 #
-arduino_due_x.build.usb_manufacturer="HarvesteR"
-arduino_due_x.build.usb_product="HRV Collective"
+
+
+
+#build.usb_manufacturer="HRV Simpit Controls"
+#build.usb_product="HRV Collective"
+#build.vid=0x1209
+#build.pid=0x4200

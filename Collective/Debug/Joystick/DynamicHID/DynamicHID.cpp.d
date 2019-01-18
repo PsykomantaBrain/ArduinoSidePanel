@@ -1,4 +1,4 @@
-C:\Users\HarvesteR\AppData\Local\Temp\VMBuilds\Collective\arduino_due_x_dbg\Debug\Joystick\DynamicHID\DynamicHID.cpp.o: \
+C:\Users\HarvesteR\AppData\Local\Temp\VMBuilds\Collective\arduino_due_x\Debug\Joystick\DynamicHID\DynamicHID.cpp.o: \
  D:\HarvesteR\Documents\Arduino\libraries\Joystick\src\DynamicHID\DynamicHID.cpp \
  D:\HarvesteR\Documents\Arduino\libraries\Joystick\src\DynamicHID\DynamicHID.h \
  C:\Users\HarvesteR\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.11\cores\arduino/Arduino.h \

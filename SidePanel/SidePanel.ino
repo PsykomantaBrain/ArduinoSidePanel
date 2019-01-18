@@ -505,7 +505,7 @@ void processAxisButtons(double axis, bool *axisLast, long *axisTLast, int btnFli
 int hatAngle;
 void setHat(int angle, int firstButton)
 {
-	// the 'hat' switch is actually a group of buttons, because some games apparently read hats are other axes
+	// the 'hat' switch is actually a group of buttons, because some games apparently read hats as other axes
 	if (angle != -1)
 	{
 		if (angle < 360.0) angle += 360;

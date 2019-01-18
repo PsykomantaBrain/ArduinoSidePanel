@@ -34,7 +34,7 @@
 #define JOYSTICK_RANGE_MAX 1023
 #define JOYSTICK_TRAVEL 512 // should be half of the range
 #define JOYSTICK_CENTER 512
-
+#define POV_DEADZONE 0.5 // raw units
 
 // button output mapping
 #define Trg 0
@@ -80,8 +80,9 @@ class AxisCalibration
 AxisCalibration axisTwist = AxisCalibration(0, 2048, 4095);
 AxisCalibration axisX = AxisCalibration(1800, 2770, 4095);
 AxisCalibration axisY = AxisCalibration(1630, 2813, 4095);int headA;int headB;int headC;int headD;int headE;double xOut, yOut, zOut, tOut;
+double stickAngle;
 
-Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 21, 0, true, true, true, false, false, false, false, true, false, false, false);
+Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 25, 2, true, true, true, false, false, false, false, true, false, false, false);
 void setup(){	pinMode(BTN4, INPUT_PULLUP);
 	pinMode(BTN5, INPUT_PULLUP);	
 	pinMode(Mx0, INPUT);
@@ -107,7 +108,7 @@ Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTIC
 
 	// group A (Nav A, Thbs, SLR, HS)
 	readHeadMatrixGroup(MxA, &headA);
-	joystick.setButton(NavRight, headA & 0x1);
+	joystick.setButton(NavCtr, headA & 0x1);//ctr
 	joystick.setButton(THBS, headA & 0x2);
 	joystick.setButton(SLR, headA & 0x4);
 	joystick.setButton(HS, headA & 0x8);
@@ -115,7 +116,7 @@ Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTIC
 	
 	// group B (Nav B, RG, DG, TSR+)
 	readHeadMatrixGroup(MxB, &headB);
-	joystick.setButton(NavDown, headB & 0x1);
+	joystick.setButton(NavRight, headB & 0x1);//rgt
 	joystick.setButton(RG, headB & 0x2);
 	joystick.setButton(DG, headB & 0x4);
 	joystick.setButton(TSR_Up, headB & 0x8);
@@ -123,29 +124,28 @@ Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTIC
 	
 	// group C (Nav C, TSL+, TSL-, TSR-)
 	readHeadMatrixGroup(MxC, &headC);
-	joystick.setButton(NavUp, headC & 0x1);
+	joystick.setButton(NavUp, headC & 0x1);//up
 	joystick.setButton(TSL_up, headC & 0x2);
 	joystick.setButton(TSL_Dn, headC & 0x4);
 	joystick.setButton(TSR_Dn, headC & 0x8);
 	
 	// group D (Nav D, RTH-L, RTH-R, unused)
 	readHeadMatrixGroup(MxD, &headD);
-	joystick.setButton(NavLeft, headD & 0x1);
+	joystick.setButton(NavDown, headD & 0x1);//dn
 	joystick.setButton(RTH_lf, headD & 0x2);
 	joystick.setButton(RTH_rt, headD & 0x4);
 	
 	// group E (Nav E, Trg, IDF, IDB)
 	readHeadMatrixGroup(MxE, &headE);
-	joystick.setButton(NavCtr, headE & 0x1);
+	joystick.setButton(NavLeft, headE & 0x1);//lft
 	joystick.setButton(Trg, headE & 0x2);
 	joystick.setButton(IDF, headE & 0x4);
 	joystick.setButton(IDB, headE & 0x8);
 
-
+	// the nav switch is also POV2	setNavHat((headC & 0x1), (headB & 0x1), (headD & 0x1), (headE & 0x1));
 
 	xOut = processAxisAdv(analogRead(AXIS_X), 1.0, axisX.min, axisX.center, axisTwist.max, 0.0);
 	yOut = processAxisAdv(analogRead(AXIS_Y), 1.0, axisY.min, axisY.center, axisY.max, 0.0);
-
 
 	joystick.setXAxis(xOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
 	joystick.setYAxis(yOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
@@ -156,7 +156,20 @@ Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTIC
 	
 	joystick.setZAxis(zOut *  JOYSTICK_TRAVEL + JOYSTICK_CENTER);
 	joystick.setThrottle(tOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);	joystick.setButton(GpR, digitalRead(BTN4) == LOW);
-	joystick.setButton(GpK, digitalRead(BTN5) == LOW);		delay(20);}void readHeadMatrixGroup(int group, int *mxBits){	*mxBits = 0x0;	pinMode(group, OUTPUT);
+	joystick.setButton(GpK, digitalRead(BTN5) == LOW);	// deflecting the thumbstick also controls the hat switch (allows mapping the stick to binary bindings in games)
+	if (abs(xOut) > POV_DEADZONE || abs(yOut) > POV_DEADZONE)
+	{
+		stickAngle = atan2(yOut, xOut) * RAD_TO_DEG;
+		stickAngle += 112.5;
+
+		joystick.setHatSwitch(0, stickAngle);
+		setHat(stickAngle, 21);
+	}
+	else
+	{
+		joystick.setHatSwitch(0, -1);
+		setHat(-1, 21);
+	}	delay(20);}void readHeadMatrixGroup(int group, int *mxBits){	*mxBits = 0x0;	pinMode(group, OUTPUT);
 	digitalWrite(group, LOW);
 
 	pinMode(Mx0, INPUT_PULLUP);
@@ -214,4 +227,54 @@ double processAxisAdv(int raw, double response, double inMin, double inCtr, doub
 		axis = 0.0;
 
 	return axis;
+}
+
+
+
+int hatAngle;
+void setHat(int angle, int firstButton)
+{
+	// the 'hat' switch is actually a group of buttons, because some games apparently read hats as other axes
+	if (angle != -1)
+	{
+		if (angle < 360.0) angle += 360;
+		if (angle > 360.0) angle -= 360;
+		hatAngle = angle / 90; // / 45;
+	}
+	else
+	{
+		hatAngle = -1;
+	}
+
+	joystick.setButton(firstButton, hatAngle == 0);
+	joystick.setButton(firstButton + 1, hatAngle == 1);
+	joystick.setButton(firstButton + 2, hatAngle == 2);
+	joystick.setButton(firstButton + 3, hatAngle == 3);
+	//joystick.setButton(firstButton + 4, hatAngle == 4);
+	//joystick.setButton(firstButton + 5, hatAngle == 5);
+	//joystick.setButton(firstButton + 6, hatAngle == 6);
+	//joystick.setButton(firstButton + 7, hatAngle == 7);
+}
+
+
+int navAngle;
+void setNavHat(bool up, bool right, bool down, bool left)
+{
+	double iy = down ? .1 : (up ? -.1 : 0.0);
+	double ix = right ? .1 : (left ? -.1 : 0.0);
+		
+
+	if (ix != 0 || iy != 0)
+	{
+		navAngle = atan2(iy, ix) * RAD_TO_DEG;
+		navAngle += 112.5;
+		//navAngle = (int)navAngle % 360;
+
+		joystick.setHatSwitch(1, navAngle);
+	}
+	else
+	{
+		joystick.setHatSwitch(1, -1);
+	}
+	
 }
