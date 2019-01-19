@@ -1,6 +1,7 @@
 
 #include "Joystick.h"
-#define sign(x) ((x) > 0 ? 1: ((x) < 0 ? -1 : 0))
+
+#define sign(x) ((x) > 0 ? 1: ((x) < 0 ? -1 : 0))
 
 // head matrix mapping
 // see https://www.tinkercad.com/things/fCHrucmTHlC-collective-head-wiring for the wiring
@@ -30,7 +31,11 @@
 #define AXIS_Y 1
 #define AXIS_COLL 2
 #define AXIS_THR 3
-// axis output #define JOYSTICK_RANGE_MIN 0
+
+
+
+// axis output 
+#define JOYSTICK_RANGE_MIN 0
 #define JOYSTICK_RANGE_MAX 1023
 #define JOYSTICK_TRAVEL 512 // should be half of the range
 #define JOYSTICK_CENTER 512
@@ -75,34 +80,63 @@ class AxisCalibration
 		min = pMin;
 		center = pCenter;
 	}
-};
-// axis inputsAxisCalibration axisColl = AxisCalibration(0, 2048, 4095);
+};
+
+// axis inputs
+AxisCalibration axisColl = AxisCalibration(0, 2048, 4095);
 AxisCalibration axisTwist = AxisCalibration(0, 2048, 4095);
 AxisCalibration axisX = AxisCalibration(1800, 2770, 4095);
-AxisCalibration axisY = AxisCalibration(1630, 2813, 4095);int headA;int headB;int headC;int headD;int headE;double xOut, yOut, zOut, tOut;
+AxisCalibration axisY = AxisCalibration(1630, 2813, 4095);
+
+
+int headA;
+int headB;
+int headC;
+int headD;
+int headE;
+
+double xOut, yOut, zOut, tOut;
 double stickAngle;
 
+bool suppressThumbstickButtons;
+
 Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 25, 2, true, true, true, false, false, false, false, true, false, false, false);
-void setup(){	pinMode(BTN4, INPUT_PULLUP);
-	pinMode(BTN5, INPUT_PULLUP);	
+
+
+void setup()
+{
+
+	pinMode(BTN4, INPUT_PULLUP);
+	pinMode(BTN5, INPUT_PULLUP);
+	
 	pinMode(Mx0, INPUT);
 	pinMode(Mx1, INPUT);
 	pinMode(Mx2, INPUT);
 	pinMode(Mx3, INPUT);
-
+
+
 	pinMode(MxA, OUTPUT_OFF);
 	pinMode(MxB, OUTPUT_OFF);
 	pinMode(MxC, OUTPUT_OFF);
 	pinMode(MxD, OUTPUT_OFF);
 	pinMode(MxE, OUTPUT_OFF);
-	analogReadResolution(12);
+
+
+	analogReadResolution(12);
 
 	joystick.begin();
 	joystick.setXAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	joystick.setYAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	joystick.setZAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	joystick.setThrottleRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
-	}void loop(){
+	
+	// start the device with the red grip button held to suppress thumbstick buttons
+	suppressThumbstickButtons = digitalRead(BTN5) == 0;
+}
+
+void loop()
+{
+
 	// head controls
 
 
@@ -142,7 +176,11 @@ Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTIC
 	joystick.setButton(IDF, headE & 0x4);
 	joystick.setButton(IDB, headE & 0x8);
 
-	// the nav switch is also POV2	setNavHat((headC & 0x1), (headB & 0x1), (headD & 0x1), (headE & 0x1));
+
+
+	// the nav switch is also POV2
+	setNavHat((headC & 0x1), (headB & 0x1), (headD & 0x1), (headE & 0x1));
+
 
 	xOut = processAxisAdv(analogRead(AXIS_X), 1.0, axisX.min, axisX.center, axisTwist.max, 0.0);
 	yOut = processAxisAdv(analogRead(AXIS_Y), 1.0, axisY.min, axisY.center, axisY.max, 0.0);
@@ -155,9 +193,15 @@ Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTIC
 	tOut = processAxisAdv(analogRead(AXIS_THR), 1.0, axisTwist.min, axisTwist.center, axisTwist.max, 0.0);
 	
 	joystick.setZAxis(zOut *  JOYSTICK_TRAVEL + JOYSTICK_CENTER);
-	joystick.setThrottle(tOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);	joystick.setButton(GpR, digitalRead(BTN4) == LOW);
-	joystick.setButton(GpK, digitalRead(BTN5) == LOW);	// deflecting the thumbstick also controls the hat switch (allows mapping the stick to binary bindings in games)
-	if (abs(xOut) > POV_DEADZONE || abs(yOut) > POV_DEADZONE)
+	joystick.setThrottle(tOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
+
+	joystick.setButton(GpR, digitalRead(BTN4) == LOW);
+	joystick.setButton(GpK, digitalRead(BTN5) == LOW);
+
+
+
+	// deflecting the thumbstick also controls the hat switch (allows mapping the stick to binary bindings in games)
+	if (!suppressThumbstickButtons && (abs(xOut) > POV_DEADZONE || abs(yOut) > POV_DEADZONE))
 	{
 		stickAngle = atan2(yOut, xOut) * RAD_TO_DEG;
 		stickAngle += 112.5;
@@ -169,7 +213,19 @@ Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTIC
 	{
 		joystick.setHatSwitch(0, -1);
 		setHat(-1, 21);
-	}	delay(20);}void readHeadMatrixGroup(int group, int *mxBits){	*mxBits = 0x0;	pinMode(group, OUTPUT);
+	}
+
+
+	delay(20);
+}
+
+
+
+void readHeadMatrixGroup(int group, int *mxBits)
+{
+	*mxBits = 0x0;
+
+	pinMode(group, OUTPUT);
 	digitalWrite(group, LOW);
 
 	pinMode(Mx0, INPUT_PULLUP);
@@ -192,7 +248,22 @@ Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTIC
 		*mxBits |= 0x8;
 	pinMode(Mx3, INPUT);
 
-	pinMode(group, OUTPUT_OFF);}double lerp(double v0, double v1, double t){	return (1.0 - t) * v0 + t * v1;}double map(double x, double in_min, double in_max, double out_min, double out_max){	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;}
+	pinMode(group, OUTPUT_OFF);
+}
+
+
+
+double lerp(double v0, double v1, double t)
+{
+	return (1.0 - t) * v0 + t * v1;
+}
+
+double map(double x, double in_min, double in_max, double out_min, double out_max)
+{
+	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+
 double processAxis(int raw, double response, double inMin, double inMax, double deadzone)
 {
 	double axis = map((double)raw, inMin, inMax, -1.0, 1.0);
