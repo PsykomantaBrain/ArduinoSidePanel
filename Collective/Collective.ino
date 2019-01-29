@@ -1,14 +1,16 @@
 
+#include <Mouse.h>
 #include "Joystick.h"
 
 #define sign(x) ((x) > 0 ? 1: ((x) < 0 ? -1 : 0))
 
-// head matrix mapping
-// see https://www.tinkercad.com/things/fCHrucmTHlC-collective-head-wiring for the wiring
-
 //High impedance pin mode
 #define OUTPUT_OFF INPUT_PULLUP
 
+
+
+// head matrix mapping
+// see https://www.tinkercad.com/things/fCHrucmTHlC-collective-head-wiring for the wiring
 #define MxA 40
 #define MxB 44
 #define MxC 48
@@ -20,9 +22,6 @@
 #define Mx2 42
 #define Mx3 46
 
-#define ASrc 38
-
-
 
 // pin mappings
 #define BTN4 10
@@ -31,6 +30,11 @@
 #define AXIS_Y 1
 #define AXIS_COLL 2
 #define AXIS_THR 3
+
+// head rotary pins (RTR0)
+#define RTR0_A 32
+#define RTR0_B 28
+#define RTR0_Ck 30
 
 
 
@@ -67,6 +71,13 @@
 #define NavCtr 20
 
 
+#define Rtr0_back 25
+#define Rtr0_fwd 26
+#define Rtr0_Click 27
+
+
+
+
 class AxisCalibration
 {
 	public:
@@ -100,27 +111,40 @@ double stickAngle;
 
 bool suppressThumbstickButtons;
 
-Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 25, 2, true, true, true, false, false, false, false, true, false, false, false);
+Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 28, 2, true, true, true, false, false, false, false, true, false, false, false);
 
+
+const uint32_t rotaryPulseTime = 20;
+volatile uint32_t rot0_Tback;
+volatile uint32_t rot0_Tfwd;
 
 void setup()
 {
-
-	pinMode(BTN4, INPUT_PULLUP);
-	pinMode(BTN5, INPUT_PULLUP);
-	
+	// matrix pins
 	pinMode(Mx0, INPUT);
 	pinMode(Mx1, INPUT);
 	pinMode(Mx2, INPUT);
 	pinMode(Mx3, INPUT);
-
-
+	
 	pinMode(MxA, OUTPUT_OFF);
 	pinMode(MxB, OUTPUT_OFF);
 	pinMode(MxC, OUTPUT_OFF);
 	pinMode(MxD, OUTPUT_OFF);
 	pinMode(MxE, OUTPUT_OFF);
 
+
+	//grip btns
+	pinMode(BTN4, INPUT_PULLUP);
+	pinMode(BTN5, INPUT_PULLUP);
+
+	// rotary inputs 
+	pinMode(RTR0_A, INPUT_PULLUP);
+	pinMode(RTR0_B, INPUT_PULLUP);
+	pinMode(RTR0_Ck, INPUT_PULLUP);
+
+	rot0_Tback = 0;
+	rot0_Tfwd  = 0;
+	attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0, CHANGE);
 
 	analogReadResolution(12);
 
@@ -132,6 +156,8 @@ void setup()
 	
 	// start the device with the red grip button held to suppress thumbstick buttons
 	suppressThumbstickButtons = digitalRead(BTN5) == 0;
+		
+	Mouse.begin();
 }
 
 void loop()
@@ -198,7 +224,10 @@ void loop()
 	joystick.setButton(GpR, digitalRead(BTN4) == LOW);
 	joystick.setButton(GpK, digitalRead(BTN5) == LOW);
 
-
+	// rotary 0 (head)
+	joystick.setButton(Rtr0_Click, digitalRead(RTR0_Ck) == LOW);
+	joystick.setButton(Rtr0_back, rot0_Tback + rotaryPulseTime > millis());
+	joystick.setButton(Rtr0_fwd, rot0_Tfwd + rotaryPulseTime > millis());
 
 	// deflecting the thumbstick also controls the hat switch (allows mapping the stick to binary bindings in games)
 	if (!suppressThumbstickButtons && (abs(xOut) > POV_DEADZONE || abs(yOut) > POV_DEADZONE))
@@ -348,4 +377,44 @@ void setNavHat(bool up, bool right, bool down, bool left)
 		joystick.setHatSwitch(1, -1);
 	}
 	
+}
+
+volatile int rot0_a0 = 0;
+volatile int rot0_c0 = 0;
+
+void interrupt_ROT0()
+{
+	encoderRead(RTR0_A, RTR0_B);	
+}
+
+
+void encoderRead(int pinA, int pinB) 
+{
+	int a = digitalRead(pinA);
+	int b = digitalRead(pinB);
+	if (a != rot0_a0)
+	{
+		rot0_a0 = a;
+		if (b != rot0_c0)
+		{
+			rot0_c0 = b;
+			
+			OnEncoderChange(a == b);
+		}
+	}
+
+}
+
+void OnEncoderChange(bool cw)
+{
+	if (cw)
+	{
+		rot0_Tfwd = millis();
+		Mouse.move(0, 0, 1);
+	}
+	else
+	{
+		rot0_Tback = millis();
+		Mouse.move(0, 0, -1);
+	}
 }
