@@ -1,5 +1,5 @@
-C:\Users\HarvesteR\AppData\Local\Temp\VMBuilds\SidePanel\leonardo\Debug\SidePanel.cpp.o: \
- C:\Users\HarvesteR\AppData\Local\Temp\VMBuilds\SidePanel\leonardo\Debug\SidePanel.cpp \
+C:\Users\ffala\AppData\Local\Temp\VMBuilds\SidePanel\leonardo\Debug\SidePanel.cpp.o: \
+ C:\Users\ffala\AppData\Local\Temp\VMBuilds\SidePanel\leonardo\Debug\SidePanel.cpp \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/arduino.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/binary.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/WCharacter.h \
@@ -13,9 +13,12 @@ C:\Users\HarvesteR\AppData\Local\Temp\VMBuilds\SidePanel\leonardo\Debug\SidePane
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/USBDesc.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/USBCore.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\variants\leonardo/pins_arduino.h \
- D:\HarvesteR\Documents\Arduino\libraries\SoftReset-master/SoftReset.h \
- D:\HarvesteR\Documents\Arduino\libraries\MuxShield/MuxShield.h \
+ E:\HarvesteR\Arduino\libraries\SoftReset-master/SoftReset.h \
+ E:\HarvesteR\Arduino\libraries\MuxShield/MuxShield.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
- D:\HarvesteR\Documents\Arduino\libraries\Joystick\src/Joystick.h \
- D:\HarvesteR\Documents\Arduino\libraries\Joystick\src/DynamicHID/DynamicHID.h \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/PluggableUSB.h
+ E:\HarvesteR\Arduino\libraries\Joystick\src/Joystick.h \
+ E:\HarvesteR\Arduino\libraries\Joystick\src/DynamicHID/DynamicHID.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/PluggableUSB.h \
+ C:\Program\ Files\ (x86)\Arduino\libraries\Keyboard\src/Keyboard.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\libraries\HID\src/HID.h \
+ c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\community\common7\ide\extensions\35np2mnr.twd\Micro\ Platforms\default\debuggers\VM_DBG/VM_DBG.h

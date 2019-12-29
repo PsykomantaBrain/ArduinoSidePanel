@@ -38,12 +38,31 @@
 
 
 
+// aft panel left rotary pins (RTR1)
+#define RTR1_A 33
+#define RTR1_B 31
+#define RTR1_Ck 29
+
+// aft panel right rotary pins (RTR2)
+#define RTR2_A 23
+#define RTR2_B 25
+#define RTR2_Ck 27
+
+// aft panel switch
+#define AFT_SW0 35
+#define AFT_SW1 37
+
+// fore panel L/R toggle
+#define FORE_TGL0_L 39
+#define FORE_TGL0_R 41
+
 // axis output 
 #define JOYSTICK_RANGE_MIN 0
 #define JOYSTICK_RANGE_MAX 1023
 #define JOYSTICK_TRAVEL 512 // should be half of the range
 #define JOYSTICK_CENTER 512
 #define POV_DEADZONE 0.5 // raw units
+
 
 // button output mapping
 #define Trg 0
@@ -76,7 +95,29 @@
 #define Rtr0_Click 27
 
 
+// Fore panel -----------------
 
+#define ForePanel_tgl0_left 36
+#define ForePanel_tgl0_rgt 37
+#define ForePanel_tgl0_ret 38
+
+int t_ForePanel_Tgl0;
+
+//-------------------------------
+
+// Aft panel -----------------
+
+#define AftPanel_Rtr1_back 28
+#define AftPanel_Rtr1_fwd 29
+#define AftPanel_Rtr1_click 30
+
+#define AftPanel_Rtr2_back 31
+#define AftPanel_Rtr2_fwd 32
+#define AftPanel_Rtr2_click 33
+
+#define AftPanel_SW_up 34
+#define AftPanel_SW_dn 35
+//-------------------------------
 
 class AxisCalibration
 {
@@ -96,7 +137,7 @@ class AxisCalibration
 // axis inputs
 AxisCalibration axisColl = AxisCalibration(0, 2048, 4095);
 AxisCalibration axisTwist = AxisCalibration(0, 2048, 4095);
-AxisCalibration axisX = AxisCalibration(1800, 2770, 4095);
+AxisCalibration axisX = AxisCalibration(1840, 2770, 4095);
 AxisCalibration axisY = AxisCalibration(1630, 2813, 4095);
 
 
@@ -111,12 +152,29 @@ double stickAngle;
 
 bool suppressThumbstickButtons;
 
-Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 28, 2, true, true, true, false, false, false, false, true, false, false, false);
+Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 39, 2, true, true, true, false, false, false, false, true, false, false, false);
 
 
 const uint32_t rotaryPulseTime = 20;
+
 volatile uint32_t rot0_Tback;
 volatile uint32_t rot0_Tfwd;
+volatile int rot0_a = 0;
+volatile int rot0_b = 0;
+
+volatile uint32_t rot1_Tback;
+volatile uint32_t rot1_Tfwd;
+volatile int rot1_a = 0;
+volatile int rot1_b = 0;
+
+volatile uint32_t rot2_Tback;
+volatile uint32_t rot2_Tfwd;
+volatile int rot2_a = 0;
+volatile int rot2_b = 0;
+
+
+
+const int centerFindingPeriodDuration = 1000;
 
 void setup()
 {
@@ -142,9 +200,33 @@ void setup()
 	pinMode(RTR0_B, INPUT_PULLUP);
 	pinMode(RTR0_Ck, INPUT_PULLUP);
 
+	// aft panel inputs 
+	pinMode(RTR1_A, INPUT_PULLUP);
+	pinMode(RTR1_B, INPUT_PULLUP);
+	pinMode(RTR1_Ck, INPUT_PULLUP);
+
+	pinMode(RTR2_A, INPUT_PULLUP);
+	pinMode(RTR2_B, INPUT_PULLUP);
+	pinMode(RTR2_Ck, INPUT_PULLUP);
+
+	pinMode(AFT_SW0, INPUT_PULLUP);
+	pinMode(AFT_SW1, INPUT_PULLUP);
+
+	// fore panel inputs 
+	pinMode(FORE_TGL0_L, INPUT_PULLUP);
+	pinMode(FORE_TGL0_R, INPUT_PULLUP);
+	   
+	   
 	rot0_Tback = 0;
 	rot0_Tfwd  = 0;
+	rot1_Tback = 0;
+	rot1_Tfwd = 0;
+	rot2_Tback = 0;
+	rot2_Tfwd = 0;
+
 	attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0, CHANGE);
+	attachInterrupt(digitalPinToInterrupt(RTR1_A), interrupt_ROT1, CHANGE);
+	attachInterrupt(digitalPinToInterrupt(RTR2_A), interrupt_ROT2, CHANGE);
 
 	analogReadResolution(12);
 
@@ -202,50 +284,92 @@ void loop()
 	joystick.setButton(IDF, headE & 0x4);
 	joystick.setButton(IDB, headE & 0x8);
 
-
-
-	// the nav switch is also POV2
-	setNavHat((headC & 0x1), (headB & 0x1), (headD & 0x1), (headE & 0x1));
-
-
-	xOut = processAxisAdv(analogRead(AXIS_X), 1.0, axisX.min, axisX.center, axisTwist.max, 0.0);
-	yOut = processAxisAdv(analogRead(AXIS_Y), 1.0, axisY.min, axisY.center, axisY.max, 0.0);
-
-	joystick.setXAxis(xOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
-	joystick.setYAxis(yOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
-
+	
+	
 	// grip controls
 	zOut = processAxisAdv(analogRead(AXIS_COLL), 1.0, axisColl.min, axisColl.center, axisColl.max, 0.0);
 	tOut = processAxisAdv(analogRead(AXIS_THR), 1.0, axisTwist.min, axisTwist.center, axisTwist.max, 0.0);
-	
-	joystick.setZAxis(zOut *  JOYSTICK_TRAVEL + JOYSTICK_CENTER);
+
+	joystick.setZAxis(zOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
 	joystick.setThrottle(tOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
 
 	joystick.setButton(GpR, digitalRead(BTN4) == LOW);
 	joystick.setButton(GpK, digitalRead(BTN5) == LOW);
-
+	
 	// rotary 0 (head)
 	joystick.setButton(Rtr0_Click, digitalRead(RTR0_Ck) == LOW);
 	joystick.setButton(Rtr0_back, rot0_Tback + rotaryPulseTime > millis());
 	joystick.setButton(Rtr0_fwd, rot0_Tfwd + rotaryPulseTime > millis());
+	   
 
-	// deflecting the thumbstick also controls the hat switch (allows mapping the stick to binary bindings in games)
-	if (!suppressThumbstickButtons && (abs(xOut) > POV_DEADZONE || abs(yOut) > POV_DEADZONE))
+	// the nav switch is also POV2
+	setNavHat((headC & 0x1), (headB & 0x1), (headD & 0x1), (headE & 0x1));
+	   
+
+	//thumbstick axes (and mouse cursor)	
+	if (millis() < centerFindingPeriodDuration)
 	{
-		stickAngle = atan2(yOut, xOut) * RAD_TO_DEG;
-		stickAngle += 112.5;
-
-		joystick.setHatSwitch(0, stickAngle);
-		setHat(stickAngle, 21);
+		axisX.center = lerp(axisX.center, analogRead(AXIS_X), 0.5);
+		axisY.center = lerp(axisY.center, analogRead(AXIS_Y), 0.5);
 	}
 	else
 	{
-		joystick.setHatSwitch(0, -1);
-		setHat(-1, 21);
+		xOut = -processAxisAdv(analogRead(AXIS_X), 1.2, axisX.min, axisX.center, axisX.max, 0.0);
+		yOut = -processAxisAdv(analogRead(AXIS_Y), 1.2, axisY.min, axisY.center, axisY.max, 0.0);
+		Mouse.move(xOut * 25, yOut * 25, 0);
+		
+		joystick.setXAxis(xOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
+		joystick.setYAxis(yOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
+				
+
+		// deflecting the thumbstick also controls the hat switch (allows mapping the stick to binary bindings in games)
+		if (!suppressThumbstickButtons && (abs(xOut) > POV_DEADZONE || abs(yOut) > POV_DEADZONE))
+		{
+			stickAngle = atan2(yOut, xOut) * RAD_TO_DEG;
+			stickAngle += 112.5;
+
+			joystick.setHatSwitch(0, stickAngle);
+			setHat(stickAngle, 21);
+		}
+		else
+		{
+			joystick.setHatSwitch(0, -1);
+			setHat(-1, 21);
+		}
 	}
 
 
-	delay(20);
+	// rotary 1 (aftPanel left)
+	joystick.setButton(AftPanel_Rtr1_click, digitalRead(RTR1_Ck) == LOW);
+	joystick.setButton(AftPanel_Rtr1_back, rot1_Tback + rotaryPulseTime > millis());
+	joystick.setButton(AftPanel_Rtr1_fwd, rot1_Tfwd + rotaryPulseTime > millis());
+	// rotary 2 (aftPanel right)
+	joystick.setButton(AftPanel_Rtr2_click, digitalRead(RTR2_Ck) == LOW);
+	joystick.setButton(AftPanel_Rtr2_back, rot2_Tback + rotaryPulseTime > millis());
+	joystick.setButton(AftPanel_Rtr2_fwd, rot2_Tfwd + rotaryPulseTime > millis());
+	// aft panel switch
+	joystick.setButton(AftPanel_SW_up, digitalRead(AFT_SW0) == LOW);
+	joystick.setButton(AftPanel_SW_dn, digitalRead(AFT_SW1) == LOW);
+
+	// fore panel switch
+	bool tgl0L = digitalRead(FORE_TGL0_L) == LOW;
+	bool tgl0R = digitalRead(FORE_TGL0_R) == LOW;
+		
+	joystick.setButton(ForePanel_tgl0_left, tgl0L);
+	joystick.setButton(ForePanel_tgl0_rgt, tgl0R);
+
+	// fore panel switch return-to-center pulse 
+	if (tgl0L || tgl0R)
+	{
+		joystick.setButton(ForePanel_tgl0_ret, false);
+		t_ForePanel_Tgl0 = millis() + 200;
+	}
+	else
+	{
+		joystick.setButton(ForePanel_tgl0_ret, t_ForePanel_Tgl0 > millis());
+	}
+
+	delay(15);
 }
 
 
@@ -379,42 +503,90 @@ void setNavHat(bool up, bool right, bool down, bool left)
 	
 }
 
-volatile int rot0_a0 = 0;
-volatile int rot0_c0 = 0;
 
 void interrupt_ROT0()
 {
-	encoderRead(RTR0_A, RTR0_B);	
+	encoder0Read(RTR0_A, RTR0_B);	
+}
+void interrupt_ROT1()
+{
+	encoder1Read(RTR1_A, RTR1_B);
+}
+void interrupt_ROT2()
+{
+	encoder2Read(RTR2_A, RTR2_B);
 }
 
 
-void encoderRead(int pinA, int pinB) 
+void encoder0Read(int pinA, int pinB) 
 {
 	int a = digitalRead(pinA);
 	int b = digitalRead(pinB);
-	if (a != rot0_a0)
+	if (a != rot0_a)
 	{
-		rot0_a0 = a;
-		if (b != rot0_c0)
+		rot0_a = a;
+		if (b != rot0_b)
 		{
-			rot0_c0 = b;
-			
-			OnEncoderChange(a == b);
+			rot0_b = b;
+
+			if (a == b)
+			{
+				rot0_Tfwd = millis();
+				Mouse.move(0, 0, 1);
+			}
+			else
+			{
+				rot0_Tback = millis();
+				Mouse.move(0, 0, -1);
+			}
 		}
 	}
-
 }
 
-void OnEncoderChange(bool cw)
+
+void encoder1Read(int pinA, int pinB)
 {
-	if (cw)
+	int a = digitalRead(pinA);
+	int b = digitalRead(pinB);
+	if (a != rot1_a)
 	{
-		rot0_Tfwd = millis();
-		Mouse.move(0, 0, 1);
+		rot1_a = a;
+		if (b != rot1_b)
+		{
+			rot1_b = b;
+
+			if (a == b)
+			{
+				rot1_Tfwd = millis();
+			}
+			else
+			{
+				rot1_Tback = millis();
+			}
+		}
 	}
-	else
+}
+
+
+void encoder2Read(int pinA, int pinB)
+{
+	int a = digitalRead(pinA);
+	int b = digitalRead(pinB);
+	if (a != rot2_a)
 	{
-		rot0_Tback = millis();
-		Mouse.move(0, 0, -1);
+		rot2_a = a;
+		if (b != rot2_b)
+		{
+			rot2_b = b;
+
+			if (a == b)
+			{
+				rot2_Tfwd = millis();				
+			}
+			else
+			{
+				rot2_Tback = millis();				
+			}
+		}
 	}
 }

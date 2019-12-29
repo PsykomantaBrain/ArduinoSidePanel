@@ -1,6 +1,7 @@
-C:\Users\ffala\AppData\Local\Temp\VMBuilds\Collective\arduino_due_x\Debug\Joystick\DynamicHID\DynamicHID.cpp.o: \
- E:\HarvesteR\Arduino\libraries\Joystick\src\DynamicHID\DynamicHID.cpp \
- E:\HarvesteR\Arduino\libraries\Joystick\src\DynamicHID\DynamicHID.h \
+C:\Users\ffala\AppData\Local\Temp\VMBuilds\Collective\arduino_due_x\Debug\Mouse\Mouse.cpp.o: \
+ C:\Program\ Files\ (x86)\Arduino\libraries\Mouse\src\Mouse.cpp \
+ C:\Program\ Files\ (x86)\Arduino\libraries\Mouse\src\Mouse.h \
+ C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\libraries\HID\src/HID.h \
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/Arduino.h \
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/avr/pgmspace.h \
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/avr/interrupt.h \

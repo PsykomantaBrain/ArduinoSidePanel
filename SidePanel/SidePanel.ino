@@ -6,6 +6,7 @@ Author:	HarvesteR
 #include <SoftReset.h>
 #include "MuxShield.h"
 #include "Joystick.h"
+#include <Keyboard.h>
 
 #define IO1 1
 #define IO2 2
@@ -101,21 +102,24 @@ double xRot, yRot;
 double xOut, yOut, zOut;
 double sl1, sl2;
 
-long binaryThrTLast = 0;
+unsigned long binaryThrTLast = 0;
 bool binaryThrLast = 0;
-long toggle1TLast = 0;
+unsigned long toggle1TLast = 0;
 bool toggle1Last = 0;
-long toggle2TLast = 0;
+unsigned long toggle2TLast = 0;
 bool toggle2Last = 0;
 
-long binaryPulseTime = 100;
+unsigned long binaryPulseTime = 100;
 
-long centerCalibrateTime = 1000;
-long extentsCalibrateTime = 10000;
-long centerCalibrateTLast = 0;
+int keyDown = 0;
+unsigned long tKeyDown = 0;
+
+unsigned long centerCalibrateTime = 1000;
+unsigned long extentsCalibrateTime = 10000;
+unsigned long centerCalibrateTLast = 0;
 
 int encoderCount = 0;
-long encoderTLast = 0;
+unsigned long encoderTLast = 0;
 
 double rCos, rSin;
 
@@ -159,6 +163,7 @@ void setup()
 	rCos = cos(stickRotation);
 	rSin = sin(stickRotation);
 
+	Keyboard.begin();
 }
 
 
@@ -223,14 +228,27 @@ void loop()
 		{
 			toggle2Last = muxShield.digitalReadMS(BTN30);
 			toggle2TLast = millis() + binaryPulseTime;
+
+			if (toggle2Last)
+				pulseKey(KEY_F13);
+			else
+				pulseKey(KEY_F14);
 		}
 		joystick.setButton(30, toggle2TLast > millis());
 	}
 	joystick.setButton(41, !muxShield.digitalReadMS(BTN30));
 
 	// button 31 is the side switch with cover
-	joystick.setButton(31, !muxShield.digitalReadMS(BTN28));
-
+	if (!muxShield.digitalReadMS(BTN28))
+	{
+		joystick.setButton(31, true);
+		Keyboard.press(KEY_F15);
+	}
+	else
+	{
+		Keyboard.release(KEY_F15);
+		joystick.setButton(31, false);
+	}
 
 
 
@@ -354,6 +372,9 @@ void loop()
 		}
 	}
 
+
+	keyReleaseUpdate();
+
 	delay(17);
 }
 
@@ -475,7 +496,7 @@ bool PollCalibrationCombo()
 }
 
 
-void processAxisButtons(double axis, bool *axisLast, long *axisTLast, int btnFlick, int btnMin, int btnMax, double minThreshold, double maxThreshold)
+void processAxisButtons(double axis, bool *axisLast, unsigned long *axisTLast, int btnFlick, int btnMin, int btnMax, double minThreshold, double maxThreshold)
 {
 	if (btnFlick != -1)
 	{
@@ -525,4 +546,23 @@ void setHat(int angle, int firstButton)
 	joystick.setButton(firstButton + 5, hatAngle == 5);
 	joystick.setButton(firstButton + 6, hatAngle == 6);
 	joystick.setButton(firstButton + 7, hatAngle == 7);
+}
+
+
+void pulseKey(int kc)
+{
+	keyDown = kc;
+	tKeyDown = millis();
+	Keyboard.press(kc);
+}
+
+void keyReleaseUpdate()
+{
+	// release any keys being pulsed
+	if (keyDown != 0 && millis() > tKeyDown + binaryPulseTime)
+	{
+		Keyboard.release(keyDown);
+		keyDown = 0;
+	}
+
 }

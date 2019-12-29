@@ -1,6 +1,7 @@
-C:\Users\ffala\AppData\Local\Temp\VMBuilds\SidePanel\leonardo\Debug\VM_DBG\VM_DBG.cpp.o: \
- c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\community\common7\ide\extensions\35np2mnr.twd\Micro\ Platforms\default\debuggers\VM_DBG\VM_DBG.cpp \
- c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\community\common7\ide\extensions\35np2mnr.twd\Micro\ Platforms\default\debuggers\VM_DBG\VM_DBG.h \
+C:\Users\ffala\AppData\Local\Temp\VMBuilds\SidePanel\leonardo\Debug\Keyboard\Keyboard.cpp.o: \
+ C:\Program\ Files\ (x86)\Arduino\libraries\Keyboard\src\Keyboard.cpp \
+ C:\Program\ Files\ (x86)\Arduino\libraries\Keyboard\src\Keyboard.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\libraries\HID\src/HID.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/binary.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/WCharacter.h \
@@ -13,4 +14,5 @@ C:\Users\ffala\AppData\Local\Temp\VMBuilds\SidePanel\leonardo\Debug\VM_DBG\VM_DB
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/USBDesc.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/USBCore.h \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\variants\leonardo/pins_arduino.h
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\variants\leonardo/pins_arduino.h \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/PluggableUSB.h

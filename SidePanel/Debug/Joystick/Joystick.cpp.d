@@ -1,7 +1,7 @@
-C:\Users\HarvesteR\AppData\Local\Temp\VMBuilds\SidePanel\leonardo\Debug\Joystick\Joystick.cpp.o: \
- D:\HarvesteR\Documents\Arduino\libraries\Joystick\src\Joystick.cpp \
- D:\HarvesteR\Documents\Arduino\libraries\Joystick\src\Joystick.h \
- D:\HarvesteR\Documents\Arduino\libraries\Joystick\src/DynamicHID/DynamicHID.h \
+C:\Users\ffala\AppData\Local\Temp\VMBuilds\SidePanel\leonardo\Debug\Joystick\Joystick.cpp.o: \
+ E:\HarvesteR\Arduino\libraries\Joystick\src\Joystick.cpp \
+ E:\HarvesteR\Arduino\libraries\Joystick\src\Joystick.h \
+ E:\HarvesteR\Arduino\libraries\Joystick\src/DynamicHID/DynamicHID.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/binary.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/WCharacter.h \
