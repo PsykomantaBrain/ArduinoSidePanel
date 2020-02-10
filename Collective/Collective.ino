@@ -125,19 +125,21 @@ class AxisCalibration
 	double max;
 	double min;
 	double center;
+	double deadzone;
 
-	AxisCalibration(double pMin, double pCenter, double pMax)
+	AxisCalibration(double pMin, double pCenter, double pMax, double dz = 0.0)
 	{
 		max = pMax;
 		min = pMin;
 		center = pCenter;
+		deadzone = dz;
 	}
 };
 
 // axis inputs
 AxisCalibration axisColl = AxisCalibration(0, 2048, 4095);
 AxisCalibration axisTwist = AxisCalibration(0, 2048, 4095);
-AxisCalibration axisX = AxisCalibration(1840, 2770, 4095);
+AxisCalibration axisX = AxisCalibration(1560, 2723, 3580, 180);
 AxisCalibration axisY = AxisCalibration(1630, 2813, 4095);
 
 
@@ -172,9 +174,10 @@ volatile uint32_t rot2_Tfwd;
 volatile int rot2_a = 0;
 volatile int rot2_b = 0;
 
+bool tgl0L, tgl0R;
 
 
-const int centerFindingPeriodDuration = 1000;
+const int centerFindingPeriodDuration = 2000;
 
 void setup()
 {
@@ -240,13 +243,18 @@ void setup()
 	suppressThumbstickButtons = digitalRead(BTN5) == 0;
 		
 	Mouse.begin();
+
+	//SerialUSB.begin(115200);
 }
+
+uint32_t mils;
+
 
 void loop()
 {
+	mils = millis();
 
 	// head controls
-
 
 	// group A (Nav A, Thbs, SLR, HS)
 	readHeadMatrixGroup(MxA, &headA);
@@ -287,8 +295,8 @@ void loop()
 	
 	
 	// grip controls
-	zOut = processAxisAdv(analogRead(AXIS_COLL), 1.0, axisColl.min, axisColl.center, axisColl.max, 0.0);
-	tOut = processAxisAdv(analogRead(AXIS_THR), 1.0, axisTwist.min, axisTwist.center, axisTwist.max, 0.0);
+	zOut = processAxisAdv(analogRead(AXIS_COLL), 1.0, axisColl.min, axisColl.center, axisColl.max, axisColl.deadzone);
+	tOut = processAxisAdv(analogRead(AXIS_THR), 1.0, axisTwist.min, axisTwist.center, axisTwist.max, axisTwist.deadzone);
 
 	joystick.setZAxis(zOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
 	joystick.setThrottle(tOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
@@ -307,16 +315,17 @@ void loop()
 	   
 
 	//thumbstick axes (and mouse cursor)	
-	if (millis() < centerFindingPeriodDuration)
+	if (mils < centerFindingPeriodDuration)
 	{
 		axisX.center = lerp(axisX.center, analogRead(AXIS_X), 0.5);
 		axisY.center = lerp(axisY.center, analogRead(AXIS_Y), 0.5);
 	}
 	else
 	{
-		xOut = -processAxisAdv(analogRead(AXIS_X), 1.2, axisX.min, axisX.center, axisX.max, 0.0);
-		yOut = -processAxisAdv(analogRead(AXIS_Y), 1.2, axisY.min, axisY.center, axisY.max, 0.0);
+		xOut = lerp(xOut, -processAxisAdv(analogRead(AXIS_X), 1.0, axisX.min, axisX.center, axisX.max, axisX.deadzone), 0.5);
+		yOut = lerp(yOut, -processAxisAdv(analogRead(AXIS_Y), 1.0, axisY.min, axisY.center, axisY.max, axisY.deadzone), 0.5);
 		Mouse.move(xOut * 25, yOut * 25, 0);
+		
 		
 		joystick.setXAxis(xOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
 		joystick.setYAxis(yOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
@@ -338,22 +347,24 @@ void loop()
 		}
 	}
 
+	// uncomment for debugging out axis values. remember to uncomment SerialUSB.Begin in setup(). SerialUSB (instead of Serial) outputs on the native port :)
+	//SerialUSB.println((String)"Axis Ctr: " + axisX.center + " V Raw: " + analogRead(AXIS_X) + " V Out: " + xOut);
 
 	// rotary 1 (aftPanel left)
 	joystick.setButton(AftPanel_Rtr1_click, digitalRead(RTR1_Ck) == LOW);
-	joystick.setButton(AftPanel_Rtr1_back, rot1_Tback + rotaryPulseTime > millis());
-	joystick.setButton(AftPanel_Rtr1_fwd, rot1_Tfwd + rotaryPulseTime > millis());
+	joystick.setButton(AftPanel_Rtr1_back, rot1_Tback + rotaryPulseTime > mils);
+	joystick.setButton(AftPanel_Rtr1_fwd, rot1_Tfwd + rotaryPulseTime > mils);
 	// rotary 2 (aftPanel right)
 	joystick.setButton(AftPanel_Rtr2_click, digitalRead(RTR2_Ck) == LOW);
-	joystick.setButton(AftPanel_Rtr2_back, rot2_Tback + rotaryPulseTime > millis());
-	joystick.setButton(AftPanel_Rtr2_fwd, rot2_Tfwd + rotaryPulseTime > millis());
+	joystick.setButton(AftPanel_Rtr2_back, rot2_Tback + rotaryPulseTime > mils);
+	joystick.setButton(AftPanel_Rtr2_fwd, rot2_Tfwd + rotaryPulseTime > mils);
 	// aft panel switch
 	joystick.setButton(AftPanel_SW_up, digitalRead(AFT_SW0) == LOW);
 	joystick.setButton(AftPanel_SW_dn, digitalRead(AFT_SW1) == LOW);
 
 	// fore panel switch
-	bool tgl0L = digitalRead(FORE_TGL0_L) == LOW;
-	bool tgl0R = digitalRead(FORE_TGL0_R) == LOW;
+	tgl0L = digitalRead(FORE_TGL0_L) == LOW;
+	tgl0R = digitalRead(FORE_TGL0_R) == LOW;
 		
 	joystick.setButton(ForePanel_tgl0_left, tgl0L);
 	joystick.setButton(ForePanel_tgl0_rgt, tgl0R);
@@ -362,14 +373,15 @@ void loop()
 	if (tgl0L || tgl0R)
 	{
 		joystick.setButton(ForePanel_tgl0_ret, false);
-		t_ForePanel_Tgl0 = millis() + 200;
+		t_ForePanel_Tgl0 = mils + 200;
 	}
 	else
 	{
-		joystick.setButton(ForePanel_tgl0_ret, t_ForePanel_Tgl0 > millis());
+		joystick.setButton(ForePanel_tgl0_ret, t_ForePanel_Tgl0 > mils);
 	}
+	
 
-	delay(15);
+	delay(16);
 }
 
 
@@ -417,38 +429,37 @@ double map(double x, double in_min, double in_max, double out_min, double out_ma
 }
 
 
-double processAxis(int raw, double response, double inMin, double inMax, double deadzone)
-{
-	double axis = map((double)raw, inMin, inMax, -1.0, 1.0);
-	axis = pow(abs(axis), response) * sign(axis);
-	axis = constrain(axis, -1.0, 1.0);
-
-	if (abs(axis) < deadzone)
-		axis = 0.0;
-
-	return axis;
-}
+//double processAxis(int raw, double response, double inMin, double inMax, double deadzone)
+//{
+//	double axis = map((double)raw, inMin, inMax, -1.0, 1.0);
+//
+//	axis = pow(abs(axis), response) * sign(axis);
+//	axis = constrain(axis, -1.0, 1.0);
+//
+//	if (abs(axis) < deadzone)
+//		axis = 0.0;
+//
+//	return axis;
+//}
 
 double processAxisAdv(int raw, double response, double inMin, double inCtr, double inMax, double deadzone)
 {
 	double axis = (double)raw;
-	if (axis == inCtr)
+	if (abs(axis - inCtr) < deadzone)
 		return 0.0;
 
 	if (axis < inCtr)
 	{
-		axis = map(axis, inMin, inCtr, -1.0, 0.0);
+		axis = map(axis + deadzone, inMin + deadzone, inCtr, -1.0, 0.0);
 	}
 	if (axis > inCtr)
 	{
-		axis = map(axis, inCtr, inMax, 0.0, 1.0);
+		axis = map(axis - deadzone, inCtr, inMax - deadzone, 0.0, 1.0);
 	}
 
 	axis = pow(abs(axis), response) * sign(axis);
 	axis = constrain(axis, -1.0, 1.0);
 
-	if (abs(axis) < deadzone)
-		axis = 0.0;
 
 	return axis;
 }

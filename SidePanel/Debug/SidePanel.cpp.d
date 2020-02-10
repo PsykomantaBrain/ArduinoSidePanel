@@ -21,4 +21,4 @@ C:\Users\ffala\AppData\Local\Temp\VMBuilds\SidePanel\leonardo\Debug\SidePanel.cp
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/PluggableUSB.h \
  C:\Program\ Files\ (x86)\Arduino\libraries\Keyboard\src/Keyboard.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\libraries\HID\src/HID.h \
- c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\community\common7\ide\extensions\35np2mnr.twd\Micro\ Platforms\default\debuggers\VM_DBG/VM_DBG.h
+ c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\community\common7\ide\extensions\t4fb1en2.4xb\Micro\ Platforms\default\debuggers\VM_DBG/VM_DBG.h

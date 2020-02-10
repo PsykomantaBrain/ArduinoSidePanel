@@ -141,6 +141,4 @@ C:\Users\ffala\AppData\Local\Temp\VMBuilds\Collective\arduino_due_x\Debug\Collec
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/USB/PluggableUSB.h \
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/USB/USBAPI.h \
  E:\HarvesteR\Arduino\libraries\Joystick\src/Joystick.h \
- E:\HarvesteR\Arduino\libraries\Joystick\src/DynamicHID/DynamicHID.h \
- c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\community\common7\ide\extensions\35np2mnr.twd\Micro\ Platforms\default\debuggers\VM_DBG/VM_DBG.h \
- c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\community\common7\ide\extensions\35np2mnr.twd\Micro\ Platforms\default\debuggers\VM_DBG/VM_Boards.h
+ E:\HarvesteR\Arduino\libraries\Joystick\src/DynamicHID/DynamicHID.h
