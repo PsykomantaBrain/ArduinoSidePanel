@@ -103,6 +103,12 @@
 
 int t_ForePanel_Tgl0;
 
+// Dev Panel --------------------
+
+#define DEV_CRS 6
+#define DEV_SCRWH 7
+#define DEV_POVTBS 5
+
 //-------------------------------
 
 // Aft panel -----------------
@@ -153,6 +159,9 @@ double xOut, yOut, zOut, tOut;
 double stickAngle;
 
 bool suppressThumbstickButtons;
+bool useThbstickHat;
+bool useThbCursor;
+bool useScrollWheel;
 
 Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 39, 2, true, true, true, false, false, false, false, true, false, false, false);
 
@@ -239,20 +248,37 @@ void setup()
 	joystick.setZAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	joystick.setThrottleRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	
-	// start the device with the red grip button held to suppress thumbstick buttons
-	suppressThumbstickButtons = digitalRead(BTN5) == 0;
-		
 	Mouse.begin();
 
-	//SerialUSB.begin(115200);
+	SerialUSB.begin(115200);
 }
 
 uint32_t mils;
+uint32_t tLastCrsRecenter = 0;
 
 
 void loop()
 {
 	mils = millis();
+
+
+
+	// dev panel switches before anything else, as they control device options
+	// pins 5, 6, 7
+	//SerialUSB.println((String)"PIN 5: " + digitalRead(5) + " | PIN 6: " + digitalRead(6) + " | PIN 7: " + digitalRead(7));
+	bool crsToggle = !digitalRead(DEV_CRS);
+	if (crsToggle != useThbCursor)
+	{
+		useThbCursor = crsToggle;
+		
+		if (crsToggle)
+			tLastCrsRecenter = mils;
+	}
+	useScrollWheel = !digitalRead(DEV_SCRWH);
+	useThbstickHat = !digitalRead(DEV_POVTBS);
+
+
+
 
 	// head controls
 
@@ -315,7 +341,7 @@ void loop()
 	   
 
 	//thumbstick axes (and mouse cursor)	
-	if (mils < centerFindingPeriodDuration)
+	if (mils < tLastCrsRecenter + centerFindingPeriodDuration)
 	{
 		axisX.center = lerp(axisX.center, analogRead(AXIS_X), 0.5);
 		axisY.center = lerp(axisY.center, analogRead(AXIS_Y), 0.5);
@@ -324,15 +350,18 @@ void loop()
 	{
 		xOut = lerp(xOut, -processAxisAdv(analogRead(AXIS_X), 1.0, axisX.min, axisX.center, axisX.max, axisX.deadzone), 0.5);
 		yOut = lerp(yOut, -processAxisAdv(analogRead(AXIS_Y), 1.0, axisY.min, axisY.center, axisY.max, axisY.deadzone), 0.5);
-		Mouse.move(xOut * 25, yOut * 25, 0);
-		
+
+		if (useThbCursor)
+		{
+			Mouse.move(xOut * 25, yOut * 25, 0);
+		}
 		
 		joystick.setXAxis(xOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
 		joystick.setYAxis(yOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
 				
-
-		// deflecting the thumbstick also controls the hat switch (allows mapping the stick to binary bindings in games)
-		if (!suppressThumbstickButtons && (abs(xOut) > POV_DEADZONE || abs(yOut) > POV_DEADZONE))
+		
+		// if enabled, deflecting the thumbstick also controls the hat switch (allows mapping the stick to binary bindings in games)
+		if (useThbstickHat && (abs(xOut) > POV_DEADZONE || abs(yOut) > POV_DEADZONE))
 		{
 			stickAngle = atan2(yOut, xOut) * RAD_TO_DEG;
 			stickAngle += 112.5;
@@ -347,8 +376,6 @@ void loop()
 		}
 	}
 
-	// uncomment for debugging out axis values. remember to uncomment SerialUSB.Begin in setup(). SerialUSB (instead of Serial) outputs on the native port :)
-	//SerialUSB.println((String)"Axis Ctr: " + axisX.center + " V Raw: " + analogRead(AXIS_X) + " V Out: " + xOut);
 
 	// rotary 1 (aftPanel left)
 	joystick.setButton(AftPanel_Rtr1_click, digitalRead(RTR1_Ck) == LOW);
@@ -380,6 +407,11 @@ void loop()
 		joystick.setButton(ForePanel_tgl0_ret, t_ForePanel_Tgl0 > mils);
 	}
 	
+
+
+
+	// uncomment for debugging out axis values. remember to uncomment SerialUSB.Begin in setup(). SerialUSB (instead of Serial) outputs on the native port :)
+	//SerialUSB.println((String)"Axis Ctr: " + axisX.center + " V Raw: " + analogRead(AXIS_X) + " V Out: " + xOut);
 
 	delay(16);
 }
@@ -542,13 +574,13 @@ void encoder0Read(int pinA, int pinB)
 
 			if (a == b)
 			{
-				rot0_Tfwd = millis();
-				Mouse.move(0, 0, 1);
+				rot0_Tfwd = millis();				
+				if (useScrollWheel) Mouse.move(0, 0, 1);
 			}
 			else
 			{
 				rot0_Tback = millis();
-				Mouse.move(0, 0, -1);
+				if (useScrollWheel) Mouse.move(0, 0, -1);
 			}
 		}
 	}

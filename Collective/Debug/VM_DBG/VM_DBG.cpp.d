@@ -1,6 +1,6 @@
-C:\Users\ffala\AppData\Local\Temp\VMBuilds\Collective\arduino_due_x\Debug\VM_DBG\VM_DBG.cpp.o: \
- c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\community\common7\ide\extensions\t4fb1en2.4xb\Micro\ Platforms\default\debuggers\VM_DBG\VM_DBG.cpp \
- c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\community\common7\ide\extensions\t4fb1en2.4xb\Micro\ Platforms\default\debuggers\VM_DBG\VM_DBG.h \
+C:\Users\ffala\AppData\Local\Temp\VMBuilds\Collective\arduino_due_x_dbg\Debug\VM_DBG\VM_DBG.cpp.o: \
+ c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\community\common7\ide\extensions\p1hbfuhp.cmm\Micro\ Platforms\default\debuggers\VM_DBG\VM_DBG.cpp \
+ c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\community\common7\ide\extensions\p1hbfuhp.cmm\Micro\ Platforms\default\debuggers\VM_DBG\VM_DBG.h \
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/Arduino.h \
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/avr/pgmspace.h \
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/avr/interrupt.h \
@@ -136,4 +136,4 @@ C:\Users\ffala\AppData\Local\Temp\VMBuilds\Collective\arduino_due_x\Debug\VM_DBG
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/USB/USBAPI.h \
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/RingBuffer.h \
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/Stream.h \
- c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\community\common7\ide\extensions\t4fb1en2.4xb\Micro\ Platforms\default\debuggers\VM_DBG\VM_Boards.h
+ c:\program\ files\ (x86)\microsoft\ visual\ studio\2019\community\common7\ide\extensions\p1hbfuhp.cmm\Micro\ Platforms\default\debuggers\VM_DBG\VM_Boards.h
