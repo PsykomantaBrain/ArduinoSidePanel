@@ -108,6 +108,8 @@ int t_ForePanel_Tgl0;
 #define DEV_CRS 6
 #define DEV_SCRWH 7
 #define DEV_POVTBS 5
+#define DEV_ANALOG_XL 7
+#define DEV_ANALOG_XR 6
 
 //-------------------------------
 
@@ -148,6 +150,8 @@ AxisCalibration axisTwist = AxisCalibration(0, 2048, 4095);
 AxisCalibration axisX = AxisCalibration(1560, 2723, 3580, 180);
 AxisCalibration axisY = AxisCalibration(1630, 2813, 4095);
 
+AxisCalibration axisRX = AxisCalibration(11, 2048, 4095, 50);
+AxisCalibration axisRY = AxisCalibration(11, 2048, 4095, 50);
 
 int headA;
 int headB;
@@ -155,7 +159,7 @@ int headC;
 int headD;
 int headE;
 
-double xOut, yOut, zOut, tOut;
+double xOut, yOut, zOut, tOut, rxOut, ryOut;
 double stickAngle;
 
 bool suppressThumbstickButtons;
@@ -163,7 +167,7 @@ bool useThbstickHat;
 bool useThbCursor;
 bool useScrollWheel;
 
-Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 39, 2, true, true, true, false, false, false, false, true, false, false, false);
+Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 39, 2, true, true, true, true, true, false, false, true, false, false, false);
 
 
 const uint32_t rotaryPulseTime = 20;
@@ -247,10 +251,12 @@ void setup()
 	joystick.setYAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	joystick.setZAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	joystick.setThrottleRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+	joystick.setRxAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+	joystick.setRyAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	
 	Mouse.begin();
 
-	SerialUSB.begin(115200);
+	//SerialUSB.begin(115200);
 }
 
 uint32_t mils;
@@ -266,6 +272,7 @@ void loop()
 	// dev panel switches before anything else, as they control device options
 	// pins 5, 6, 7
 	//SerialUSB.println((String)"PIN 5: " + digitalRead(5) + " | PIN 6: " + digitalRead(6) + " | PIN 7: " + digitalRead(7));
+	//SerialUSB.println((String)"PIN A6: " + analogRead(6) + " | PIN A7: " + analogRead(7));
 	bool crsToggle = !digitalRead(DEV_CRS);
 	if (crsToggle != useThbCursor)
 	{
@@ -276,6 +283,12 @@ void loop()
 	}
 	useScrollWheel = !digitalRead(DEV_SCRWH);
 	useThbstickHat = !digitalRead(DEV_POVTBS);
+
+	rxOut = processAxisAdv(analogRead(DEV_ANALOG_XL), 1.0, axisRX.min, axisRX.center, axisRX.max, axisRX.deadzone);
+	joystick.setRxAxis(rxOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
+
+	ryOut = processAxisAdv(analogRead(DEV_ANALOG_XR), 1.0, axisRY.min, axisRY.center, axisRY.max, axisRY.deadzone);
+	joystick.setRyAxis(ryOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
 
 
 
