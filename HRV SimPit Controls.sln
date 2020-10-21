@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SidePanel", "SidePanel\Side
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Collective", "Collective\Collective.vcxproj", "{1BEE580D-1253-4578-B91A-C53BFF7282E4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Yoke", "..\Yoke\Yoke.vcxproj", "{FFF90F28-234F-43E9-972A-D3F9FD94DA82}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Yoke", "Yoke\Yoke.vcxproj", "{FFF90F28-234F-43E9-972A-D3F9FD94DA82}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
