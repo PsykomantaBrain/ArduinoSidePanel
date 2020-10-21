@@ -94,6 +94,10 @@
 #define Rtr0_fwd 26
 #define Rtr0_Click 27
 
+// dev switch output as buttons
+#define dev_crs_btn 127
+#define dev_scrwh_btn 126
+#define dev_povtbs_btn 125
 
 // Fore panel -----------------
 
@@ -145,8 +149,8 @@ class AxisCalibration
 };
 
 // axis inputs
-AxisCalibration axisColl = AxisCalibration(0, 2048, 4095);
-AxisCalibration axisTwist = AxisCalibration(0, 2048, 4095);
+AxisCalibration axisColl = AxisCalibration(11, 2048, 4095);
+AxisCalibration axisTwist = AxisCalibration(11, 2048, 4095);
 AxisCalibration axisX = AxisCalibration(1560, 2723, 3580, 180);
 AxisCalibration axisY = AxisCalibration(1630, 2813, 4095);
 
@@ -167,7 +171,7 @@ bool useThbstickHat;
 bool useThbCursor;
 bool useScrollWheel;
 
-Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 39, 2, true, true, true, true, true, false, false, true, false, false, false);
+Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 128, 2, true, true, true, true, true, false, false, true, false, false, false);
 
 
 const uint32_t rotaryPulseTime = 20;
@@ -281,8 +285,13 @@ void loop()
 		if (crsToggle)
 			tLastCrsRecenter = mils;
 	}
+	joystick.setButton(dev_crs_btn, crsToggle);
+
 	useScrollWheel = !digitalRead(DEV_SCRWH);
-	useThbstickHat = !digitalRead(DEV_POVTBS);
+	joystick.setButton(dev_scrwh_btn, useScrollWheel);
+	
+	useThbstickHat = digitalRead(DEV_POVTBS);
+	joystick.setButton(dev_povtbs_btn, useThbstickHat);
 
 	rxOut = processAxisAdv(analogRead(DEV_ANALOG_XL), 1.0, axisRX.min, axisRX.center, axisRX.max, axisRX.deadzone);
 	joystick.setRxAxis(rxOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
@@ -562,86 +571,39 @@ void setNavHat(bool up, bool right, bool down, bool left)
 
 void interrupt_ROT0()
 {
-	encoder0Read(RTR0_A, RTR0_B);	
+	encoderRead(RTR0_A, RTR0_B, &rot0_a, &rot0_b, &rot0_Tfwd, &rot0_Tback, useScrollWheel);
 }
 void interrupt_ROT1()
 {
-	encoder1Read(RTR1_A, RTR1_B);
+	encoderRead(RTR1_A, RTR1_B, &rot1_a, &rot1_b, &rot1_Tfwd, &rot1_Tback, false);
 }
 void interrupt_ROT2()
 {
-	encoder2Read(RTR2_A, RTR2_B);
+	encoderRead(RTR2_A, RTR2_B, &rot2_a, &rot2_b, &rot2_Tfwd, &rot2_Tback, false);
 }
 
 
-void encoder0Read(int pinA, int pinB) 
+
+void encoderRead(int pinA, int pinB, volatile int* a0, volatile int* b0, volatile uint32_t* rot_Tfwd, volatile uint32_t* rot_Tback, bool useScrollWheel)
 {
 	int a = digitalRead(pinA);
 	int b = digitalRead(pinB);
-	if (a != rot0_a)
+	if (a != *a0)
 	{
-		rot0_a = a;
-		if (b != rot0_b)
+		*a0 = a;
+		if (b != *b0)
 		{
-			rot0_b = b;
+			*b0 = b;
 
 			if (a == b)
 			{
-				rot0_Tfwd = millis();				
+				*rot_Tfwd = millis();
 				if (useScrollWheel) Mouse.move(0, 0, 1);
 			}
 			else
 			{
-				rot0_Tback = millis();
+				*rot_Tback = millis();
 				if (useScrollWheel) Mouse.move(0, 0, -1);
-			}
-		}
-	}
-}
-
-
-void encoder1Read(int pinA, int pinB)
-{
-	int a = digitalRead(pinA);
-	int b = digitalRead(pinB);
-	if (a != rot1_a)
-	{
-		rot1_a = a;
-		if (b != rot1_b)
-		{
-			rot1_b = b;
-
-			if (a == b)
-			{
-				rot1_Tfwd = millis();
-			}
-			else
-			{
-				rot1_Tback = millis();
-			}
-		}
-	}
-}
-
-
-void encoder2Read(int pinA, int pinB)
-{
-	int a = digitalRead(pinA);
-	int b = digitalRead(pinB);
-	if (a != rot2_a)
-	{
-		rot2_a = a;
-		if (b != rot2_b)
-		{
-			rot2_b = b;
-
-			if (a == b)
-			{
-				rot2_Tfwd = millis();				
-			}
-			else
-			{
-				rot2_Tback = millis();				
 			}
 		}
 	}

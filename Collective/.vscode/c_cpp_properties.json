@@ -1,0 +1,23 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "C:\\Program Files (x86)\\Arduino\\tools\\**",
+                "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\**",
+                "C:\\Users\\ffala\\AppData\\Local\\Arduino15\\packages\\arduino\\tools\\**",
+                "C:\\Users\\ffala\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\sam\\1.6.12\\**",
+                "C:/Program Files (x86)/Arduino/**",
+                "C:/Users/ffala/AppData/Local/Arduino15/**",
+                "E:/HarvesteR/Arduino/libraries/**"
+            ],
+            "forcedInclude": [
+                "C:\\Users\\ffala\\AppData\\Local\\Arduino15\\packages\\arduino\\hardware\\sam\\1.6.12\\cores\\arduino\\Arduino.h"
+            ],
+            "intelliSenseMode": "msvc-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}

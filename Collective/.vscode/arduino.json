@@ -1,0 +1,6 @@
+{
+    "board": "arduino:sam:arduino_due_x",
+    "port": "COM8",
+    "programmer": "Arduino as ISP",
+    "sketch": "Collective.ino"
+}
