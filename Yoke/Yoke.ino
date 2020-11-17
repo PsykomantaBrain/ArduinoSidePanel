@@ -26,7 +26,10 @@
 #include <Mouse.h>
 #include <Keyboard.h>
 
-Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 128, 6, true, true, true, true, true, false, false, true, false, false, false);
+
+#define sign(x) ((x) > 0 ? 1: ((x) < 0 ? -1 : 0))
+
+Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 128, 6, true, true, true, true, true, true, false, false, false, false, false);
 
 //initialize the liquid crystal library
 //the first parameter is the I2C address
@@ -45,28 +48,28 @@ byte cc0[8] = {
     B00000,
 };
 byte cc1[8] = {
-    B10000,
-    B01000,
+    B11000,
     B00100,
     B00010,
-    B10001,
+    B00001,    
+    B10000,
     B01000,
     B00000,
     B00000,
 };
 byte cc2[8] = {
-    B00001,
-    B00010,
+    B00011,    
     B00100,
     B01000,
-    B10001,
-    B00010,    
+    B10000,
+    B00001,    
+    B00010,
     B00000,
     B00000,
 };
 byte cc3[8] = {
     B11111,
-    B0000,
+    B00000,
     B00000,
     B11111,
     B00000,
@@ -74,31 +77,183 @@ byte cc3[8] = {
     B00000,
     B00000,
 };
+byte cc4[8] = {
+    B00000,
+    B00000,
+    B00000,
+    B00000,
+    B00000,
+    B00000,    
+    B00000,
+    B00000,    
+};
+
+
+//High impedance pin mode
+#define OUTPUT_OFF INPUT_PULLUP
+
+// axis output 
+#define JOYSTICK_RANGE_MIN 0
+#define JOYSTICK_RANGE_MAX 4096
+
+
+class AxisCalibration
+{
+public:
+    double max;
+    double min;
+    double center;
+    double deadzone;
+
+    AxisCalibration(double pMin, double pCenter, double pMax, double dz = 0.0)
+    {
+        max = pMax;
+        min = pMin;
+        center = pCenter;
+        deadzone = dz;
+    }
+
+
+    double processAxis(double axis, double response = 1.0)
+    {        
+        if (abs(axis - center) < deadzone)
+            return 0.5;
+
+        if (axis < center)
+        {
+            axis = map(axis + deadzone, min + deadzone, center, -1.0, 0.0);
+        }
+        if (axis > center)
+        {
+            axis = map(axis - deadzone, center, max - deadzone, 0.0, 1.0);
+        }
+
+        axis = pow(abs(axis), response) * sign(axis);
+        axis = constrain(axis, -1.0, 1.0);
+
+
+        return axis * 0.5 + 0.5;
+    }
+
+    double lerp(double v0, double v1, double t)
+    {
+        return (1.0 - t) * v0 + t * v1;
+    }
+
+    double map(double x, double in_min, double in_max, double out_min, double out_max)
+    {
+        return (x - in_min) / (in_max - in_min) * (out_max - out_min) + out_min;
+    }
+};
+
+
+AxisCalibration axisRHX = AxisCalibration(1120.0, 2060.0, 3220.0, 50.0);
+AxisCalibration axisRHY = AxisCalibration(860.0, 2048.0, 3200.0, 50.0);
+
+AxisCalibration axisLHX = AxisCalibration(1120.0, 2060.0, 3220.0, 50.0);
+AxisCalibration axisLHY = AxisCalibration(860.0, 2048.0, 3200.0, 50.0);
 
 void setup()
 {
-    joystick.begin();
+    
 
+    Wire.begin();
     lcd.init();
+    
+    lcd.backlight();
+    lcd.setBacklight(128);
+    
+    delay(2000);
+    
     lcd.createChar(0, cc0);    
     lcd.createChar(1, cc1);   
     lcd.createChar(2, cc2);   
     lcd.createChar(3, cc3);   
-
+    lcd.createChar(4, cc4);   
     
-    lcd.backlight();
-    lcd.setBacklight(128);
-
+    
+    
     lcd.setCursor(0, 0);
     lcd.print(" HRV Simviator ");
     lcd.setCursor(0, 1);
-    lcd.print("  \x08\x08\x03\x03\x01 \x02\x03\x03\x08\x08  ");
+    lcd.print("  \x08\x08\x03\x03\x01\x04\x02\x03\x03\x08\x08  ");
 
+
+
+    analogReadResolution(12);
+    
+    joystick.begin();
+    joystick.setXAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+    joystick.setYAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+    joystick.setZAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+    joystick.setRxAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+    joystick.setRyAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+    joystick.setRzAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+
+    pinMode(22, INPUT_PULLUP);
+    pinMode(24, INPUT_PULLUP);
+    pinMode(26, INPUT_PULLUP);
+    pinMode(28, INPUT_PULLUP);
+    pinMode(30, INPUT_PULLUP);
+    pinMode(32, INPUT_PULLUP);
+    pinMode(34, INPUT_PULLUP);
+    pinMode(36, INPUT_PULLUP);
+
+    //SerialUSB.begin(115200);
 }
+
+double pitchFaderA, pitchFaderB, pitch;
+double roll;
 
 // Add the main program code into the continuous loop() function
 void loop()
 {
+    pitchFaderA = analogRead(A0);
+    pitchFaderB = analogRead(A2);
+    pitch = pitchFaderA; // the B fader pot looks busted. Until the replacement arrives, we can just skip it.
+   // pitch = (pitchFaderA + pitchFaderB) * 0.5f;
+    joystick.setYAxis(pitch);
+   
     
+    roll = JOYSTICK_RANGE_MAX - analogRead(A7);
+    joystick.setXAxis(roll);
+   
+
+
+    // rh buttons
+    joystick.setButton(0, !digitalRead(32));
+    joystick.setButton(1, !digitalRead(36));
+    joystick.setButton(2, !digitalRead(34));
+    // lh buttons
+    joystick.setButton(3, !digitalRead(24));
+    joystick.setButton(4, !digitalRead(22));
+    joystick.setButton(5, !digitalRead(26));
+
+
+    // RH thumbstick
+    uint32_t a8 = analogRead(A8);
+    double rx = axisRHX.processAxis(a8);
+    uint32_t a9 = analogRead(A9);
+    double ry = axisRHY.processAxis(a9);
+
+    joystick.setZAxis(rx * JOYSTICK_RANGE_MAX);
+    joystick.setRxAxis(ry * JOYSTICK_RANGE_MAX);
+    joystick.setButton(6, !digitalRead(30));
+
+
+    // LH thumbstick
+    uint32_t a4 = analogRead(A4);
+    double lx = axisRHX.processAxis(a4);
+    uint32_t a5 = analogRead(A5);
+    double ly = axisRHY.processAxis(a5);
+
+    joystick.setRyAxis(lx * JOYSTICK_RANGE_MAX);
+    joystick.setRzAxis(ly * JOYSTICK_RANGE_MAX);
+    joystick.setButton(7, !digitalRead(28));
+
+    //SerialUSB.println((String)"RX: " + rx + " [" + (a8) + "] |  RY: " + ry + " [" + (a9) + "]");
+
     delay(16);
 }
+
+
