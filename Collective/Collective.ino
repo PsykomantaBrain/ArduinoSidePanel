@@ -354,8 +354,8 @@ void loop()
 	
 	// rotary 0 (head)
 	joystick.setButton(Rtr0_Click, digitalRead(RTR0_Ck) == LOW);
-	joystick.setButton(Rtr0_back, rot0_Tback + rotaryPulseTime > millis());
-	joystick.setButton(Rtr0_fwd, rot0_Tfwd + rotaryPulseTime > millis());
+	joystick.setButton(Rtr0_back, rot0_Tback + rotaryPulseTime > mils);
+	joystick.setButton(Rtr0_fwd, rot0_Tfwd + rotaryPulseTime > mils);
 	   
 
 	// the nav switch is also POV2

@@ -97,6 +97,16 @@ byte cc4[8] = {
 #define JOYSTICK_RANGE_MAX 4096
 
 
+// hdlR rotary pins (RTR0)
+#define RTR0_A 38
+#define RTR0_B 42
+#define RTR0_Ck 40
+
+// hdlR rotary buttons | output
+#define Rtr0_Click 8
+#define Rtr0_fwd 10
+#define Rtr0_back 9
+
 class AxisCalibration
 {
 public:
@@ -153,6 +163,18 @@ AxisCalibration axisRHY = AxisCalibration(860.0, 2048.0, 3200.0, 50.0);
 AxisCalibration axisLHX = AxisCalibration(1120.0, 2060.0, 3220.0, 50.0);
 AxisCalibration axisLHY = AxisCalibration(860.0, 2048.0, 3200.0, 50.0);
 
+
+
+
+const bool useScrollWheel = true;
+const uint32_t rotaryPulseTime = 20;
+
+volatile uint32_t rot0_Tback;
+volatile uint32_t rot0_Tfwd;
+volatile int rot0_a = 0;
+volatile int rot0_b = 0;
+
+
 void setup()
 {
     
@@ -199,8 +221,24 @@ void setup()
     pinMode(34, INPUT_PULLUP);
     pinMode(36, INPUT_PULLUP);
 
+
+    // rotary inputs 
+    pinMode(RTR0_A, INPUT_PULLUP);
+    pinMode(RTR0_B, INPUT_PULLUP);
+    pinMode(RTR0_Ck, INPUT_PULLUP);
+
+    rot0_Tback = 0;
+    rot0_Tfwd = 0;
+    attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0, CHANGE);
+
+    Mouse.begin();
+
+
     //SerialUSB.begin(115200);
+
 }
+
+uint32_t mils;
 
 double pitchFaderA, pitchFaderB, pitch;
 double roll;
@@ -208,6 +246,8 @@ double roll;
 // Add the main program code into the continuous loop() function
 void loop()
 {
+    mils = millis();
+
     pitchFaderA = analogRead(A0);
     pitchFaderB = analogRead(A2);
     pitch = pitchFaderA; // the B fader pot looks busted. Until the replacement arrives, we can just skip it.
@@ -253,7 +293,46 @@ void loop()
 
     //SerialUSB.println((String)"RX: " + rx + " [" + (a8) + "] |  RY: " + ry + " [" + (a9) + "]");
 
+
+
+    // rotary 0 (hdlR)
+    joystick.setButton(Rtr0_Click, digitalRead(RTR0_Ck) == LOW);
+    joystick.setButton(Rtr0_back, rot0_Tback + rotaryPulseTime > mils);
+    joystick.setButton(Rtr0_fwd, rot0_Tfwd + rotaryPulseTime > mils);
+
     delay(16);
 }
 
 
+
+
+
+void interrupt_ROT0()
+{
+    encoderRead(RTR0_A, RTR0_B, &rot0_a, &rot0_b, &rot0_Tfwd, &rot0_Tback, useScrollWheel);
+}
+
+void encoderRead(int pinA, int pinB, volatile int* a0, volatile int* b0, volatile uint32_t* rot_Tfwd, volatile uint32_t* rot_Tback, bool useScrollWheel)
+{
+    int a = digitalRead(pinA);
+    int b = digitalRead(pinB);
+    if (a != *a0)
+    {
+        *a0 = a;
+        if (b != *b0)
+        {
+            *b0 = b;
+
+            if (a == b)
+            {
+                *rot_Tfwd = millis();
+                if (useScrollWheel) Mouse.move(0, 0, 1);
+            }
+            else
+            {
+                *rot_Tback = millis();
+                if (useScrollWheel) Mouse.move(0, 0, -1);
+            }
+        }
+    }
+}
