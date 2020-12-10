@@ -107,6 +107,18 @@ byte cc4[8] = {
 #define Rtr0_fwd 10
 #define Rtr0_back 9
 
+// hdlL rotary pins (RTR1)
+#define RTR1_A 8
+#define RTR1_B 9
+#define RTR1_Ck 10
+
+// hdlL rotary buttons | output
+#define Rtr1_Click 13
+#define Rtr1_back 15
+#define Rtr1_fwd 14
+
+
+
 class AxisCalibration
 {
 public:
@@ -166,13 +178,19 @@ AxisCalibration axisLHY = AxisCalibration(860.0, 2048.0, 3200.0, 50.0);
 
 
 
-const bool useScrollWheel = true;
+const bool useScrollWheelRot0 = true;
+const bool useScrollWheelRot1 = false;
 const uint32_t rotaryPulseTime = 20;
 
 volatile uint32_t rot0_Tback;
 volatile uint32_t rot0_Tfwd;
 volatile int rot0_a = 0;
 volatile int rot0_b = 0;
+
+volatile uint32_t rot1_Tback;
+volatile uint32_t rot1_Tfwd;
+volatile int rot1_a = 0;
+volatile int rot1_b = 0;
 
 
 void setup()
@@ -216,9 +234,13 @@ void setup()
     pinMode(24, INPUT_PULLUP);
     pinMode(26, INPUT_PULLUP);
     pinMode(28, INPUT_PULLUP);
+    pinMode(29, INPUT_PULLUP);
     pinMode(30, INPUT_PULLUP);
+    pinMode(31, INPUT_PULLUP);
     pinMode(32, INPUT_PULLUP);
+    pinMode(33, INPUT_PULLUP);
     pinMode(34, INPUT_PULLUP);
+    pinMode(35, INPUT_PULLUP);
     pinMode(36, INPUT_PULLUP);
 
 
@@ -231,17 +253,21 @@ void setup()
     rot0_Tfwd = 0;
     attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0, CHANGE);
 
+    rot1_Tback = 0;
+    rot1_Tfwd = 0;
+    attachInterrupt(digitalPinToInterrupt(RTR1_A), interrupt_ROT1, CHANGE);
+
     Mouse.begin();
 
 
-    //SerialUSB.begin(115200);
+   // SerialUSB.begin(115200);
 
 }
 
 uint32_t mils;
 
-double pitchFaderA, pitchFaderB, pitch;
-double roll;
+int32_t pitchFaderA, pitchFaderB, pitch;
+uint32_t roll;
 
 // Add the main program code into the continuous loop() function
 void loop()
@@ -249,9 +275,9 @@ void loop()
     mils = millis();
 
     pitchFaderA = analogRead(A0);
-    pitchFaderB = analogRead(A2);
-    pitch = pitchFaderA; // the B fader pot looks busted. Until the replacement arrives, we can just skip it.
-   // pitch = (pitchFaderA + pitchFaderB) * 0.5f;
+    pitchFaderB = analogRead(A1);
+    //pitch = pitchFaderA; // the B fader pot looks busted. Until the replacement arrives, we can just skip it.
+    pitch = ((pitchFaderA - pitchFaderB) + JOYSTICK_RANGE_MAX) / 2;
     joystick.setYAxis(pitch);
    
     
@@ -264,6 +290,7 @@ void loop()
     joystick.setButton(0, !digitalRead(32));
     joystick.setButton(1, !digitalRead(36));
     joystick.setButton(2, !digitalRead(34));
+    
     // lh buttons
     joystick.setButton(3, !digitalRead(24));
     joystick.setButton(4, !digitalRead(22));
@@ -291,7 +318,7 @@ void loop()
     joystick.setRzAxis(ly * JOYSTICK_RANGE_MAX);
     joystick.setButton(7, !digitalRead(28));
 
-    //SerialUSB.println((String)"RX: " + rx + " [" + (a8) + "] |  RY: " + ry + " [" + (a9) + "]");
+    //SerialUSB.println((String)"A0: " + pitchFaderA + "  |  A1: " + pitchFaderB +"  | pitch: " + pitch);
 
 
 
@@ -299,6 +326,22 @@ void loop()
     joystick.setButton(Rtr0_Click, digitalRead(RTR0_Ck) == LOW);
     joystick.setButton(Rtr0_back, rot0_Tback + rotaryPulseTime > mils);
     joystick.setButton(Rtr0_fwd, rot0_Tfwd + rotaryPulseTime > mils);
+
+
+    // rotary 1 (hdlL)
+    joystick.setButton(Rtr1_Click, digitalRead(RTR1_Ck) == LOW);
+    joystick.setButton(Rtr1_back, rot1_Tback + rotaryPulseTime > mils);
+    joystick.setButton(Rtr1_fwd, rot1_Tfwd + rotaryPulseTime > mils);
+
+    //rh face buttons
+    joystick.setButton(9, !digitalRead(33)); // µswitch btn 
+    joystick.setButton(10, !digitalRead(29)); // pushbtn 
+    joystick.setButton(11,  !digitalRead(35)); // trim dn
+    joystick.setButton(12, !digitalRead(31)); // trim up
+
+
+
+
 
     delay(16);
 }
@@ -309,7 +352,12 @@ void loop()
 
 void interrupt_ROT0()
 {
-    encoderRead(RTR0_A, RTR0_B, &rot0_a, &rot0_b, &rot0_Tfwd, &rot0_Tback, useScrollWheel);
+    encoderRead(RTR0_A, RTR0_B, &rot0_a, &rot0_b, &rot0_Tfwd, &rot0_Tback, useScrollWheelRot0);
+}
+
+void interrupt_ROT1()
+{
+    encoderRead(RTR1_A, RTR1_B, &rot1_a, &rot1_b, &rot1_Tfwd, &rot1_Tback, useScrollWheelRot1);
 }
 
 void encoderRead(int pinA, int pinB, volatile int* a0, volatile int* b0, volatile uint32_t* rot_Tfwd, volatile uint32_t* rot_Tback, bool useScrollWheel)
