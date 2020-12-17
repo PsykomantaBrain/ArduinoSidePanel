@@ -104,8 +104,8 @@ byte cc4[8] = {
 
 // hdlR rotary buttons | output
 #define Rtr0_Click 8
-#define Rtr0_fwd 10
-#define Rtr0_back 9
+#define Rtr0_fwd 16
+#define Rtr0_back 17
 
 // hdlL rotary pins (RTR1)
 #define RTR1_A 8

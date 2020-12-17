@@ -566,3 +566,38 @@ void keyReleaseUpdate()
 	}
 
 }
+
+
+
+void interrupt_ROT6()
+{
+	encoderRead(RTR6_A, RTR6_B, &rot6, false);
+}
+
+
+
+//void encoderRead(int pinA, int pinB, volatile int* a0, volatile int* b0, volatile uint32_t* rot_Tfwd, volatile uint32_t* rot_Tback, bool useScrollWheel)
+void encoderRead(int pinA, int pinB, RotaryEncoder* rot, bool useScrollWheel)
+{
+	int a = digitalRead(pinA);
+	int b = digitalRead(pinB);
+	if (a != rot->a)
+	{
+		rot->a = a;
+		if (b != rot->b)
+		{
+			rot->b = b;
+
+			if (a == b)
+			{
+				rot->Tfwd = millis();
+				if (useScrollWheel) Mouse.move(0, 0, 1);
+			}
+			else
+			{
+				rot->Tback = millis();
+				if (useScrollWheel) Mouse.move(0, 0, -1);
+			}
+		}
+	}
+}

@@ -37,7 +37,6 @@
 #define RTR0_Ck 30
 
 
-
 // aft panel left rotary pins (RTR1)
 #define RTR1_A 33
 #define RTR1_B 31
@@ -52,9 +51,30 @@
 #define AFT_SW0 35
 #define AFT_SW1 37
 
-// fore panel L/R toggle
-#define FORE_TGL0_L 39
+// mid panel rotaries (RTR3, RTR4)
+
+#define RTR4_A 43 //w 
+#define RTR3_Ck 45 // yello
+#define RTR3_B 47 // blu
+#define RTR4_Ck 49 //green
+#define RTR4_B 51 // red
+#define RTR3_A 53 // w
+
+
+// fore panel L/R toggle and rotaries (RTR5, RTR6)
+#define FORE_TGL0_L 39 
 #define FORE_TGL0_R 41
+#define RTR5_A 14 
+#define RTR6_A 15
+#define RTR5_B 16 
+#define RTR6_B 17 
+#define RTR5_Ck 18
+#define RTR6_Ck 19
+
+
+
+
+
 
 // axis output 
 #define JOYSTICK_RANGE_MIN 0
@@ -101,21 +121,28 @@
 
 // Fore panel -----------------
 
+#define ForePanel_Rtr1_back 45
+#define ForePanel_Rtr1_fwd 46
+#define ForePanel_Rtr1_click 47
+#define ForePanel_Rtr2_back 48
+#define ForePanel_Rtr2_fwd 49
+#define ForePanel_Rtr2_click 50
+
 #define ForePanel_tgl0_left 36
 #define ForePanel_tgl0_rgt 37
 #define ForePanel_tgl0_ret 38
 
 int t_ForePanel_Tgl0;
 
-// Dev Panel --------------------
+// Middle panel -------------
 
-#define DEV_CRS 6
-#define DEV_SCRWH 7
-#define DEV_POVTBS 5
-#define DEV_ANALOG_XL 7
-#define DEV_ANALOG_XR 6
+#define MidPanel_Rtr1_back 39
+#define MidPanel_Rtr1_fwd 40
+#define MidPanel_Rtr1_click 41
+#define MidPanel_Rtr2_back 42
+#define MidPanel_Rtr2_fwd 43
+#define MidPanel_Rtr2_click 44
 
-//-------------------------------
 
 // Aft panel -----------------
 
@@ -129,6 +156,16 @@ int t_ForePanel_Tgl0;
 
 #define AftPanel_SW_up 34
 #define AftPanel_SW_dn 35
+
+
+// Dev Panel --------------------
+
+#define DEV_CRS 6
+#define DEV_SCRWH 7
+#define DEV_POVTBS 5
+#define DEV_ANALOG_XL 7
+#define DEV_ANALOG_XR 6
+
 //-------------------------------
 
 class AxisCalibration
@@ -147,6 +184,7 @@ class AxisCalibration
 		deadzone = dz;
 	}
 };
+
 
 // axis inputs
 AxisCalibration axisColl = AxisCalibration(11, 2048, 4095);
@@ -176,20 +214,23 @@ Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTIC
 
 const uint32_t rotaryPulseTime = 20;
 
-volatile uint32_t rot0_Tback;
-volatile uint32_t rot0_Tfwd;
-volatile int rot0_a = 0;
-volatile int rot0_b = 0;
+class RotaryEncoder
+{
+public:
+	volatile uint32_t Tback;
+	volatile uint32_t Tfwd;
+	volatile int a = 0;
+	volatile int b = 0;
+};
 
-volatile uint32_t rot1_Tback;
-volatile uint32_t rot1_Tfwd;
-volatile int rot1_a = 0;
-volatile int rot1_b = 0;
+RotaryEncoder rot0;
+RotaryEncoder rot1;
+RotaryEncoder rot2;
+RotaryEncoder rot3;
+RotaryEncoder rot4;
+RotaryEncoder rot5;
+RotaryEncoder rot6;
 
-volatile uint32_t rot2_Tback;
-volatile uint32_t rot2_Tfwd;
-volatile int rot2_a = 0;
-volatile int rot2_b = 0;
 
 bool tgl0L, tgl0R;
 
@@ -232,21 +273,41 @@ void setup()
 	pinMode(AFT_SW0, INPUT_PULLUP);
 	pinMode(AFT_SW1, INPUT_PULLUP);
 
+
+
+	// mid panel inputs 
+	pinMode(RTR3_A, INPUT_PULLUP);
+	pinMode(RTR3_B, INPUT_PULLUP);
+	pinMode(RTR3_Ck, INPUT_PULLUP);
+	pinMode(RTR4_A, INPUT_PULLUP);
+	pinMode(RTR4_B, INPUT_PULLUP);
+	pinMode(RTR4_Ck, INPUT_PULLUP);
+
 	// fore panel inputs 
 	pinMode(FORE_TGL0_L, INPUT_PULLUP);
-	pinMode(FORE_TGL0_R, INPUT_PULLUP);
+	pinMode(FORE_TGL0_R, INPUT_PULLUP);	
+	pinMode(RTR5_A, INPUT_PULLUP);
+	pinMode(RTR5_B, INPUT_PULLUP);
+	pinMode(RTR5_Ck, INPUT_PULLUP);
+	pinMode(RTR6_A, INPUT_PULLUP);
+	pinMode(RTR6_B, INPUT_PULLUP);
+	pinMode(RTR6_Ck, INPUT_PULLUP);
 	   
-	   
-	rot0_Tback = 0;
-	rot0_Tfwd  = 0;
-	rot1_Tback = 0;
-	rot1_Tfwd = 0;
-	rot2_Tback = 0;
-	rot2_Tfwd = 0;
+	rot0.Tback = 0;
+	rot0.Tfwd  = 0;
+	rot1.Tback = 0;
+	rot1.Tfwd = 0;
+	rot2.Tback = 0;
+	rot2.Tfwd = 0;
 
 	attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0, CHANGE);
 	attachInterrupt(digitalPinToInterrupt(RTR1_A), interrupt_ROT1, CHANGE);
 	attachInterrupt(digitalPinToInterrupt(RTR2_A), interrupt_ROT2, CHANGE);
+
+	attachInterrupt(digitalPinToInterrupt(RTR3_A), interrupt_ROT3, CHANGE);
+	attachInterrupt(digitalPinToInterrupt(RTR4_A), interrupt_ROT4, CHANGE);
+	attachInterrupt(digitalPinToInterrupt(RTR5_A), interrupt_ROT5, CHANGE);
+	attachInterrupt(digitalPinToInterrupt(RTR6_A), interrupt_ROT6, CHANGE);
 
 	analogReadResolution(12);
 
@@ -354,8 +415,8 @@ void loop()
 	
 	// rotary 0 (head)
 	joystick.setButton(Rtr0_Click, digitalRead(RTR0_Ck) == LOW);
-	joystick.setButton(Rtr0_back, rot0_Tback + rotaryPulseTime > mils);
-	joystick.setButton(Rtr0_fwd, rot0_Tfwd + rotaryPulseTime > mils);
+	joystick.setButton(Rtr0_back, rot0.Tback + rotaryPulseTime > mils);
+	joystick.setButton(Rtr0_fwd, rot0.Tfwd + rotaryPulseTime > mils);
 	   
 
 	// the nav switch is also POV2
@@ -401,20 +462,28 @@ void loop()
 
 	// rotary 1 (aftPanel left)
 	joystick.setButton(AftPanel_Rtr1_click, digitalRead(RTR1_Ck) == LOW);
-	joystick.setButton(AftPanel_Rtr1_back, rot1_Tback + rotaryPulseTime > mils);
-	joystick.setButton(AftPanel_Rtr1_fwd, rot1_Tfwd + rotaryPulseTime > mils);
+	joystick.setButton(AftPanel_Rtr1_back, rot1.Tback + rotaryPulseTime > mils);
+	joystick.setButton(AftPanel_Rtr1_fwd, rot1.Tfwd + rotaryPulseTime > mils);
 	// rotary 2 (aftPanel right)
 	joystick.setButton(AftPanel_Rtr2_click, digitalRead(RTR2_Ck) == LOW);
-	joystick.setButton(AftPanel_Rtr2_back, rot2_Tback + rotaryPulseTime > mils);
-	joystick.setButton(AftPanel_Rtr2_fwd, rot2_Tfwd + rotaryPulseTime > mils);
+	joystick.setButton(AftPanel_Rtr2_back, rot2.Tback + rotaryPulseTime > mils);
+	joystick.setButton(AftPanel_Rtr2_fwd, rot2.Tfwd + rotaryPulseTime > mils);
 	// aft panel switch
 	joystick.setButton(AftPanel_SW_up, digitalRead(AFT_SW0) == LOW);
 	joystick.setButton(AftPanel_SW_dn, digitalRead(AFT_SW1) == LOW);
 
+	// mid panel rotaries
+	joystick.setButton(MidPanel_Rtr1_click, digitalRead(RTR3_Ck) == LOW);
+	joystick.setButton(MidPanel_Rtr1_back, rot3.Tback + rotaryPulseTime > mils);
+	joystick.setButton(MidPanel_Rtr1_fwd, rot3.Tfwd + rotaryPulseTime > mils);
+	joystick.setButton(MidPanel_Rtr2_click, digitalRead(RTR4_Ck) == LOW);
+	joystick.setButton(MidPanel_Rtr2_back, rot4.Tback + rotaryPulseTime > mils);
+	joystick.setButton(MidPanel_Rtr2_fwd, rot4.Tfwd + rotaryPulseTime > mils);
+
+
 	// fore panel switch
 	tgl0L = digitalRead(FORE_TGL0_L) == LOW;
 	tgl0R = digitalRead(FORE_TGL0_R) == LOW;
-		
 	joystick.setButton(ForePanel_tgl0_left, tgl0L);
 	joystick.setButton(ForePanel_tgl0_rgt, tgl0R);
 
@@ -429,6 +498,13 @@ void loop()
 		joystick.setButton(ForePanel_tgl0_ret, t_ForePanel_Tgl0 > mils);
 	}
 	
+	// fore panel rotaries
+	joystick.setButton(ForePanel_Rtr1_click, digitalRead(RTR5_Ck) == LOW);
+	joystick.setButton(ForePanel_Rtr1_back, rot5.Tback + rotaryPulseTime > mils);
+	joystick.setButton(ForePanel_Rtr1_fwd, rot5.Tfwd + rotaryPulseTime > mils);
+	joystick.setButton(ForePanel_Rtr2_click, digitalRead(RTR6_Ck) == LOW);
+	joystick.setButton(ForePanel_Rtr2_back, rot6.Tback + rotaryPulseTime > mils);
+	joystick.setButton(ForePanel_Rtr2_fwd, rot6.Tfwd + rotaryPulseTime > mils);
 
 
 
@@ -571,38 +647,55 @@ void setNavHat(bool up, bool right, bool down, bool left)
 
 void interrupt_ROT0()
 {
-	encoderRead(RTR0_A, RTR0_B, &rot0_a, &rot0_b, &rot0_Tfwd, &rot0_Tback, useScrollWheel);
+	encoderRead(RTR0_A, RTR0_B, &rot0, false);
 }
 void interrupt_ROT1()
 {
-	encoderRead(RTR1_A, RTR1_B, &rot1_a, &rot1_b, &rot1_Tfwd, &rot1_Tback, false);
+	encoderRead(RTR1_A, RTR1_B, &rot1, false);
 }
 void interrupt_ROT2()
 {
-	encoderRead(RTR2_A, RTR2_B, &rot2_a, &rot2_b, &rot2_Tfwd, &rot2_Tback, false);
+	encoderRead(RTR2_A, RTR2_B, &rot2, false);
+}
+void interrupt_ROT3()
+{
+	encoderRead(RTR3_A, RTR3_B, &rot3, false);
+}
+void interrupt_ROT4()
+{
+	encoderRead(RTR4_A, RTR4_B, &rot4, false);
+}
+void interrupt_ROT5()
+{
+	encoderRead(RTR5_A, RTR5_B, &rot5, false);
+}
+void interrupt_ROT6()
+{
+	encoderRead(RTR6_A, RTR6_B, &rot6, false);
 }
 
 
 
-void encoderRead(int pinA, int pinB, volatile int* a0, volatile int* b0, volatile uint32_t* rot_Tfwd, volatile uint32_t* rot_Tback, bool useScrollWheel)
+//void encoderRead(int pinA, int pinB, volatile int* a0, volatile int* b0, volatile uint32_t* rot_Tfwd, volatile uint32_t* rot_Tback, bool useScrollWheel)
+void encoderRead(int pinA, int pinB, RotaryEncoder* rot, bool useScrollWheel)
 {
 	int a = digitalRead(pinA);
 	int b = digitalRead(pinB);
-	if (a != *a0)
+	if (a != rot->a)
 	{
-		*a0 = a;
-		if (b != *b0)
+		rot->a = a;
+		if (b != rot->b)
 		{
-			*b0 = b;
+			rot->b = b;
 
 			if (a == b)
 			{
-				*rot_Tfwd = millis();
+				rot->Tfwd = millis();
 				if (useScrollWheel) Mouse.move(0, 0, 1);
 			}
 			else
 			{
-				*rot_Tback = millis();
+				rot->Tback = millis();
 				if (useScrollWheel) Mouse.move(0, 0, -1);
 			}
 		}
