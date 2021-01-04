@@ -230,6 +230,13 @@ void setup()
     joystick.setRyAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
     joystick.setRzAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 
+    pinMode(2, INPUT_PULLUP);
+    pinMode(3, INPUT_PULLUP);
+    pinMode(4, INPUT_PULLUP);
+    pinMode(5, INPUT_PULLUP);
+    pinMode(6, INPUT_PULLUP);
+    pinMode(7, INPUT_PULLUP);
+
     pinMode(22, INPUT_PULLUP);
     pinMode(24, INPUT_PULLUP);
     pinMode(26, INPUT_PULLUP);
@@ -340,8 +347,13 @@ void loop()
     joystick.setButton(12, !digitalRead(31)); // trim up
 
 
-
-
+    // l hdl top face hat+button
+    joystick.setButton(18, !digitalRead(2)); // B
+    joystick.setButton(19, !digitalRead(5)); // U
+    joystick.setButton(20, !digitalRead(4)); // R
+    joystick.setButton(21, !digitalRead(6)); // D
+    joystick.setButton(22, !digitalRead(7)); // L
+    joystick.setButton(23, !digitalRead(3)); // C
 
     delay(16);
 }
