@@ -250,6 +250,14 @@ void setup()
     pinMode(35, INPUT_PULLUP);
     pinMode(36, INPUT_PULLUP);
 
+    pinMode(39, INPUT_PULLUP);
+    pinMode(41, INPUT_PULLUP);
+    pinMode(43, INPUT_PULLUP);
+    pinMode(45, INPUT_PULLUP);
+    pinMode(47, INPUT_PULLUP);
+    pinMode(49, INPUT_PULLUP);
+    pinMode(51, INPUT_PULLUP);
+
 
     // rotary inputs 
     pinMode(RTR0_A, INPUT_PULLUP);
@@ -354,6 +362,18 @@ void loop()
     joystick.setButton(21, !digitalRead(6)); // D
     joystick.setButton(22, !digitalRead(7)); // L
     joystick.setButton(23, !digitalRead(3)); // C
+
+
+
+    // r hdl top face hat+buttons
+    joystick.setButton(24, !digitalRead(47)); // U
+    joystick.setButton(25, !digitalRead(39)); // R
+    joystick.setButton(26, !digitalRead(41)); // D
+    joystick.setButton(27, !digitalRead(45)); // L
+    joystick.setButton(28, !digitalRead(43)); // C
+    joystick.setButton(29, !digitalRead(51)); // TU
+    joystick.setButton(30, !digitalRead(49)); // TD
+
 
     delay(16);
 }
