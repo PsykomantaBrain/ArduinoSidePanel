@@ -237,6 +237,11 @@ void setup()
     pinMode(6, INPUT_PULLUP);
     pinMode(7, INPUT_PULLUP);
 
+    pinMode(14, INPUT_PULLUP);
+    pinMode(15, INPUT_PULLUP);
+    pinMode(16, INPUT_PULLUP);
+    pinMode(17, INPUT_PULLUP);
+
     pinMode(22, INPUT_PULLUP);
     pinMode(24, INPUT_PULLUP);
     pinMode(26, INPUT_PULLUP);
@@ -289,10 +294,10 @@ void loop()
 {
     mils = millis();
 
-    pitchFaderA = analogRead(A0);
-    pitchFaderB = analogRead(A1);
-    //pitch = pitchFaderA; // the B fader pot looks busted. Until the replacement arrives, we can just skip it.
-    pitch = ((pitchFaderA - pitchFaderB) + JOYSTICK_RANGE_MAX) / 2;
+    pitchFaderA = lerp(pitchFaderA, analogRead(A0), 0.4);
+    pitchFaderB = lerp(pitchFaderB, analogRead(A1), 0.4);
+    
+    pitch = ((pitchFaderA - pitchFaderB) + JOYSTICK_RANGE_MAX) / 2.0;
     joystick.setYAxis(pitch);
    
     
@@ -355,6 +360,8 @@ void loop()
     joystick.setButton(12, !digitalRead(31)); // trim up
 
 
+
+
     // l hdl top face hat+button
     joystick.setButton(18, !digitalRead(2)); // B
     joystick.setButton(19, !digitalRead(5)); // U
@@ -374,6 +381,11 @@ void loop()
     joystick.setButton(29, !digitalRead(51)); // TU
     joystick.setButton(30, !digitalRead(49)); // TD
 
+    //lh face buttons
+    joystick.setButton(31, !digitalRead(14)); // µswitch btn 
+    joystick.setButton(32, !digitalRead(15)); // pushbtn 
+    joystick.setButton(33, !digitalRead(16)); // trim dn
+    joystick.setButton(34, !digitalRead(17)); // trim up
 
     delay(16);
 }
@@ -415,4 +427,10 @@ void encoderRead(int pinA, int pinB, volatile int* a0, volatile int* b0, volatil
             }
         }
     }
+}
+
+
+double lerp(double v0, double v1, double t)
+{
+    return (1.0 - t) * v0 + t * v1;
 }

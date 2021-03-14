@@ -3,7 +3,7 @@ Name:		test.ino
 Created:	7/19/2017 2:52:44 PM
 Author:	HarvesteR
 */
-#include <SoftReset.h>
+//#include <SoftReset.h>
 #include "MuxShield.h"
 #include "Joystick.h"
 #include <Keyboard.h>
@@ -79,6 +79,16 @@ class AxisCalibration
 	}
 };
 
+class RotaryEncoder
+{
+public:
+	volatile uint32_t Tback;
+	volatile uint32_t Tfwd;
+	volatile int a = 0;
+	volatile int b = 0;
+};
+
+
 const int axis_resolution = 1023;
 
 double xAxis;
@@ -129,11 +139,11 @@ bool sendSwitch30Pulses = true;
 
 
 // software reset function 
-void softReset() 
-{
-	joystick.end();
-	soft_restart();
-}
+//void softReset() 
+//{
+//	joystick.end();
+//	soft_restart();
+//}
 
 // the setup function runs once when you press reset or power the board
 void setup()
@@ -359,13 +369,13 @@ void loop()
 
 	if (PollCalibrationCombo())
 	{
-		if (!muxShield.digitalReadMS(BTN25)) // btn 25 is the red button on top of the stick
-			softReset();
+		//if (!muxShield.digitalReadMS(BTN28)) // BTN28 is the side button under the flip cover
+		//	softReset();
 
-		if (!muxShield.digitalReadMS(BTN27))
+		if (!muxShield.digitalReadMS(BTN27)) // BTN27 is the pushbutton above the scrollwheel 'axis'
 			centerCalibrateTLast = millis();
 
-		if (!muxShield.digitalReadMS(BTN28))
+		if (!muxShield.digitalReadMS(BTN5) && !muxShield.digitalReadMS(BTN10))
 		{
 			sendSwitch30Pulses = !muxShield.digitalReadMS(BTN30);
 			sendSwitch29Pulses = !muxShield.digitalReadMS(BTN29);
@@ -378,6 +388,11 @@ void loop()
 	delay(17);
 }
 
+
+bool PollCalibrationCombo()
+{
+	return !muxShield.digitalReadMS(BTN25) && !muxShield.digitalReadMS(BTN26) && !muxShield.digitalReadMS(BTN21);
+}
 
 int rotaryIdx(int x, int y)
 {
@@ -490,11 +505,6 @@ double lerp(double v0, double v1, double t)
 }
 
 
-bool PollCalibrationCombo()
-{
-	return !muxShield.digitalReadMS(BTN4) && !muxShield.digitalReadMS(BTN5) && !muxShield.digitalReadMS(BTN9) && !muxShield.digitalReadMS(BTN10);
-}
-
 
 void processAxisButtons(double axis, bool *axisLast, unsigned long *axisTLast, int btnFlick, int btnMin, int btnMax, double minThreshold, double maxThreshold)
 {
@@ -568,14 +578,6 @@ void keyReleaseUpdate()
 }
 
 
-
-void interrupt_ROT6()
-{
-	encoderRead(RTR6_A, RTR6_B, &rot6, false);
-}
-
-
-
 //void encoderRead(int pinA, int pinB, volatile int* a0, volatile int* b0, volatile uint32_t* rot_Tfwd, volatile uint32_t* rot_Tback, bool useScrollWheel)
 void encoderRead(int pinA, int pinB, RotaryEncoder* rot, bool useScrollWheel)
 {
@@ -591,12 +593,12 @@ void encoderRead(int pinA, int pinB, RotaryEncoder* rot, bool useScrollWheel)
 			if (a == b)
 			{
 				rot->Tfwd = millis();
-				if (useScrollWheel) Mouse.move(0, 0, 1);
+				//if (useScrollWheel) Mouse.move(0, 0, 1);
 			}
 			else
 			{
 				rot->Tback = millis();
-				if (useScrollWheel) Mouse.move(0, 0, -1);
+				//if (useScrollWheel) Mouse.move(0, 0, -1);
 			}
 		}
 	}
