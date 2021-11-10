@@ -212,7 +212,7 @@ bool useScrollWheel;
 Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 128, 2, true, true, true, true, true, false, false, true, false, false, false);
 
 
-const uint32_t rotaryPulseTime = 20;
+const uint32_t rotaryPulseTime = 80;
 
 class RotaryEncoder
 {
@@ -223,13 +223,13 @@ public:
 	volatile int b = 0;
 };
 
-RotaryEncoder rot0;
-RotaryEncoder rot1;
-RotaryEncoder rot2;
-RotaryEncoder rot3;
-RotaryEncoder rot4;
-RotaryEncoder rot5;
-RotaryEncoder rot6;
+volatile RotaryEncoder rot0;
+volatile RotaryEncoder rot1;
+volatile RotaryEncoder rot2;
+volatile RotaryEncoder rot3;
+volatile RotaryEncoder rot4;
+volatile RotaryEncoder rot5;
+volatile RotaryEncoder rot6;
 
 
 bool tgl0L, tgl0R;
@@ -677,10 +677,14 @@ void interrupt_ROT6()
 
 
 //void encoderRead(int pinA, int pinB, volatile int* a0, volatile int* b0, volatile uint32_t* rot_Tfwd, volatile uint32_t* rot_Tback, bool useScrollWheel)
-void encoderRead(int pinA, int pinB, RotaryEncoder* rot, bool useScrollWheel)
+void encoderRead(int pinA, int pinB, volatile RotaryEncoder* rot, bool useScrollWheel)
 {
 	int a = digitalRead(pinA);
 	int b = digitalRead(pinB);
+
+	if (rot->Tfwd > millis() - rotaryPulseTime || rot->Tback > millis() - rotaryPulseTime)
+		return; 
+
 	if (a != rot->a)
 	{
 		rot->a = a;
