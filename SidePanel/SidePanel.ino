@@ -101,9 +101,9 @@ double sl2Axis;
 double stickAngle;
 
 // calibration params
-AxisCalibration xCal = AxisCalibration(430.0, 606.5, 783.0);
-AxisCalibration yCal = AxisCalibration(515.0, 656.5, 798.0);
-AxisCalibration zCal = AxisCalibration(192.0, 156.0, 120.0);
+AxisCalibration xCal = AxisCalibration(555.0, 610.0, 635);
+AxisCalibration yCal = AxisCalibration(495.0, 540.0, 585.0);
+AxisCalibration zCal = AxisCalibration(0, 1021, 2048);
 
 double x1, y1, x2, y2;
 
@@ -119,17 +119,15 @@ bool toggle1Last = 0;
 unsigned long toggle2TLast = 0;
 bool toggle2Last = 0;
 
-unsigned long binaryPulseTime = 100;
+unsigned long binaryPulseTime = 120;
 
 int keyDown = 0;
 unsigned long tKeyDown = 0;
 
 unsigned long centerCalibrateTime = 1000;
 unsigned long extentsCalibrateTime = 10000;
-unsigned long centerCalibrateTLast = 0;
+unsigned long centerCalibrateTLast = -1;
 
-int encoderCount = 0;
-unsigned long encoderTLast = 0;
 
 double rCos, rSin;
 
@@ -137,6 +135,7 @@ bool sendSwitch29Pulses = true;
 bool sendSwitch30Pulses = true;
 
 
+int hatAngle;
 
 // software reset function 
 //void softReset() 
@@ -218,7 +217,7 @@ void loop()
 	// buttons 27, 28 are the rotary encoder
 	processEncoder(27, 28);
 
-	// button 29 is underside toggle switch
+	// button 29 is the sidewall vertical toggle switch
 	if (sendSwitch29Pulses)
 	{
 		if (muxShield.digitalReadMS(BTN29) != toggle1Last)
@@ -228,10 +227,10 @@ void loop()
 		}
 		joystick.setButton(29, toggle1TLast > millis());
 	}
-	joystick.setButton(40, muxShield.digitalReadMS(BTN29));
+	joystick.setButton(40, !muxShield.digitalReadMS(BTN29));
 
 
-	// button 30 is the sidewall toggle
+	// button 30 is the sidewall horizontal toggle
 	if (sendSwitch30Pulses)
 	{
 		if (muxShield.digitalReadMS(BTN30) != toggle2Last)
@@ -239,10 +238,10 @@ void loop()
 			toggle2Last = muxShield.digitalReadMS(BTN30);
 			toggle2TLast = millis() + binaryPulseTime;
 
-			if (toggle2Last)
-				pulseKey(KEY_F13);
-			else
-				pulseKey(KEY_F14);
+			//if (toggle2Last)
+			//	pulseKey(KEY_F13);
+			//else
+			//	pulseKey(KEY_F14);
 		}
 		joystick.setButton(30, toggle2TLast > millis());
 	}
@@ -252,11 +251,11 @@ void loop()
 	if (!muxShield.digitalReadMS(BTN28))
 	{
 		joystick.setButton(31, true);
-		Keyboard.press(KEY_F15);
+		//Keyboard.press(KEY_F15);
 	}
 	else
 	{
-		Keyboard.release(KEY_F15);
+		//Keyboard.release(KEY_F15);
 		joystick.setButton(31, false);
 	}
 
@@ -274,34 +273,37 @@ void loop()
 	sl2Axis = muxShield.analogReadMS(3, 15);
 
 
-	// center-finding happens for some time after startup or pressing the recalibration combo
-	if (millis() - centerCalibrateTLast < centerCalibrateTime)
+	//calibration
+	if (centerCalibrateTLast != -1)
 	{
-		xCal.center = lerp(xCal.center, xAxis, 0.2);
-		yCal.center = lerp(yCal.center, yAxis, 0.2);
-		zCal.center = lerp(zCal.center, zAxis, 0.2);
+		// center-finding happens for some time after startup or pressing the recalibration combo
+		if (millis() - centerCalibrateTLast < centerCalibrateTime)
+		{
+			xCal.center = lerp(xCal.center, xAxis, 0.2);
+			yCal.center = lerp(yCal.center, yAxis, 0.2);
+			zCal.center = lerp(zCal.center, zAxis, 0.2);
 
-		xCal.max = xCal.center;
-		xCal.min = xCal.center;
-		yCal.min = yCal.center;
-		yCal.max = yCal.center;
-		zCal.min = zCal.center;
-		zCal.max = zCal.center;
+			xCal.max = xCal.center;
+			xCal.min = xCal.center;
+			yCal.min = yCal.center;
+			yCal.max = yCal.center;
+			zCal.min = zCal.center;
+			zCal.max = zCal.center;
 
-		delay(17);
-		return;
+			delay(17);
+			return;
+		}
+		else if (millis() - centerCalibrateTLast < extentsCalibrateTime)
+		{
+			// continuous calibration based on max deflection (x52 style) for extents calibration time  (then it stops)
+			xCal.max = max(xCal.max, xAxis);
+			xCal.min = min(xCal.min, xAxis);
+			yCal.max = max(yCal.max, yAxis);
+			yCal.min = min(yCal.min, yAxis);
+			zCal.min = min(zCal.min, zAxis);
+			zCal.max = max(zCal.max, zAxis);
+		}
 	}
-	else if (millis() - centerCalibrateTLast < extentsCalibrateTime)
-	{
-		// continuous calibration based on max deflection (x52 style) for extents calibration time  (then it stops)
-		xCal.max = max(xCal.max, xAxis);
-		xCal.min = min(xCal.min, xAxis);
-		yCal.max = max(yCal.max, yAxis);
-		yCal.min = min(yCal.min, yAxis);
-		zCal.min = min(zCal.min, zAxis);
-		zCal.max = max(zCal.max, zAxis);
-	}
-
 
 	//Serial.print("X: "); Serial.print(xAxis); Serial.print("      Y: "); Serial.print(yAxis); Serial.print("    Z: "); Serial.print(zAxis); Serial.print("    Thr: "); Serial.print(thrAxis);  Serial.print("    S1: "); Serial.print(sl1Axis); Serial.print("    S2: "); Serial.println(sl2Axis);
 
@@ -347,7 +349,7 @@ void loop()
 	processAxisButtons(thrAxis, &binaryThrLast, &binaryThrTLast, 42, 43, 44, -0.9, 0.9);
 	//processAxisButtons(sl1Axis, 0, 0, -1, 45, 46, -0.66, 0.66);
 	//processAxisButtons(sl2Axis, 0, 0, -1, 47, 48, -0.66, 0.66);
-	processAxisButtons(zAxis, 0, 0, -1, 49, 50, -0.8, 0.8);
+	//processAxisButtons(zAxis, 0, 0, -1, 49, 50, -0.8, 0.8);
 
 
 
@@ -375,10 +377,11 @@ void loop()
 		if (!muxShield.digitalReadMS(BTN27)) // BTN27 is the pushbutton above the scrollwheel 'axis'
 			centerCalibrateTLast = millis();
 
-		if (!muxShield.digitalReadMS(BTN5) && !muxShield.digitalReadMS(BTN10))
+		if (!muxShield.digitalReadMS(BTN21)) // set the pulse flags based on the state of the toggles themselves (read when holding btn 21)
 		{
 			sendSwitch30Pulses = !muxShield.digitalReadMS(BTN30);
 			sendSwitch29Pulses = !muxShield.digitalReadMS(BTN29);
+			delay(binaryPulseTime);
 		}
 	}
 
@@ -391,13 +394,10 @@ void loop()
 
 bool PollCalibrationCombo()
 {
-	return !muxShield.digitalReadMS(BTN25) && !muxShield.digitalReadMS(BTN26) && !muxShield.digitalReadMS(BTN21);
+	// both stick buttons 
+	return !muxShield.digitalReadMS(BTN25) && !muxShield.digitalReadMS(BTN26);
 }
 
-int rotaryIdx(int x, int y)
-{
-	return (x - 1) * 16 + y;
-}
 
 int8_t read_encoder(int A, int B)
 {
@@ -409,9 +409,12 @@ int8_t read_encoder(int A, int B)
 	return (enc_states[(old_AB & 0x0f)]);
 }
 
-
+int encoderCount = 0;
+unsigned long encoderTLast = 0;
 void processEncoder(int rIdxA, int rIdxB)
 {
+	if (encoderTLast + binaryPulseTime > millis()) return;
+
 	int8_t rotary = read_encoder(muxShield.digitalReadMS(ROTARYA), muxShield.digitalReadMS(ROTARYB));
 
 	// awkward and ugly debouncing here, but I don't feel like rewiring the encoder to the interrupt lines
@@ -423,12 +426,12 @@ void processEncoder(int rIdxA, int rIdxB)
 	// This scheme does not do much to even out the frequency of inputs as the encoder turns though.
 	// another issue is that turning the encoder very quickly results in lots of bad reads and no input sent. Turn encoder gently.
 
-	if (rotary != 0 && abs(encoderCount) <= 1)
+	if (encoderTLast == 0)
 	{
 		//delay(2);
 		encoderCount += rotary;
 
-		if (abs(encoderCount) > 1)
+		if (abs(encoderCount) >= 1)
 		{
 			if (encoderCount > 0)
 			{
@@ -533,7 +536,6 @@ void processAxisButtons(double axis, bool *axisLast, unsigned long *axisTLast, i
 
 }
 
-int hatAngle;
 void setHat(int angle, int firstButton)
 {
 	// the 'hat' switch is actually a group of buttons, because some games apparently read hats as other axes
