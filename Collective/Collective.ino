@@ -26,8 +26,9 @@
 // pin mappings
 #define BTN4 10
 #define BTN5 11
-#define AXIS_X 0
-#define AXIS_Y 1
+#define BTN_TBC 36 // new thumbstick button on unused pin 36 (prob left for exactly this)
+#define AXIS_X 1
+#define AXIS_Y 0
 #define AXIS_COLL 2
 #define AXIS_THR 3
 
@@ -91,6 +92,7 @@
 #define HS 3
 #define GpR 4
 #define GpK 5
+#define TBC 51 // new thumb click on btn 51
 
 #define RG 6
 #define DG 7
@@ -189,8 +191,8 @@ class AxisCalibration
 // axis inputs
 AxisCalibration axisColl = AxisCalibration(11, 2048, 4095);
 AxisCalibration axisTwist = AxisCalibration(11, 2048, 4095);
-AxisCalibration axisX = AxisCalibration(1560, 2723, 3580, 180);
-AxisCalibration axisY = AxisCalibration(1630, 2813, 4095);
+AxisCalibration axisX = AxisCalibration(15, 2954, 4095, 20);
+AxisCalibration axisY = AxisCalibration(17, 2881, 4095, 20);
 
 AxisCalibration axisRX = AxisCalibration(11, 2048, 4095, 50);
 AxisCalibration axisRY = AxisCalibration(11, 2048, 4095, 50);
@@ -252,9 +254,10 @@ void setup()
 	pinMode(MxE, OUTPUT_OFF);
 
 
-	//grip btns
+	//grip btns and tbc
 	pinMode(BTN4, INPUT_PULLUP);
 	pinMode(BTN5, INPUT_PULLUP);
+	pinMode(BTN_TBC, INPUT_PULLUP);
 
 	// rotary inputs 
 	pinMode(RTR0_A, INPUT_PULLUP);
@@ -273,8 +276,6 @@ void setup()
 	pinMode(AFT_SW0, INPUT_PULLUP);
 	pinMode(AFT_SW1, INPUT_PULLUP);
 
-
-
 	// mid panel inputs 
 	pinMode(RTR3_A, INPUT_PULLUP);
 	pinMode(RTR3_B, INPUT_PULLUP);
@@ -292,7 +293,12 @@ void setup()
 	pinMode(RTR6_A, INPUT_PULLUP);
 	pinMode(RTR6_B, INPUT_PULLUP);
 	pinMode(RTR6_Ck, INPUT_PULLUP);
-	   
+
+	// dev panel inputs
+	pinMode(DEV_CRS, INPUT_PULLUP);
+	pinMode(DEV_SCRWH, INPUT_PULLUP);
+	pinMode(DEV_POVTBS, INPUT_PULLUP);
+
 	rot0.Tback = 0;
 	rot0.Tfwd  = 0;
 	rot1.Tback = 0;
@@ -308,6 +314,7 @@ void setup()
 	attachInterrupt(digitalPinToInterrupt(RTR4_A), interrupt_ROT4, CHANGE);
 	attachInterrupt(digitalPinToInterrupt(RTR5_A), interrupt_ROT5, CHANGE);
 	attachInterrupt(digitalPinToInterrupt(RTR6_A), interrupt_ROT6, CHANGE);
+
 
 	analogReadResolution(12);
 
@@ -412,6 +419,7 @@ void loop()
 
 	joystick.setButton(GpR, digitalRead(BTN4) == LOW);
 	joystick.setButton(GpK, digitalRead(BTN5) == LOW);
+	joystick.setButton(TBC, digitalRead(BTN_TBC) == LOW);
 	
 	// rotary 0 (head)
 	joystick.setButton(Rtr0_Click, digitalRead(RTR0_Ck) == LOW);
@@ -431,8 +439,8 @@ void loop()
 	}
 	else
 	{
-		xOut = lerp(xOut, -processAxisAdv(analogRead(AXIS_X), 1.0, axisX.min, axisX.center, axisX.max, axisX.deadzone), 0.5);
-		yOut = lerp(yOut, -processAxisAdv(analogRead(AXIS_Y), 1.0, axisY.min, axisY.center, axisY.max, axisY.deadzone), 0.5);
+		xOut = lerp(xOut, processAxisAdv(analogRead(AXIS_X), 1.0, axisX.min, axisX.center, axisX.max, axisX.deadzone), 0.5);
+		yOut = lerp(yOut, processAxisAdv(analogRead(AXIS_Y), 1.0, axisY.min, axisY.center, axisY.max, axisY.deadzone), 0.5);
 
 		if (useThbCursor)
 		{
@@ -458,6 +466,11 @@ void loop()
 			setHat(-1, 21);
 		}
 	}
+
+
+	// uncomment for debugging out axis values. remember to uncomment SerialUSB.Begin in setup(). SerialUSB (instead of Serial) outputs on the native port :)
+	//SerialUSB.println((String)"X: " + axisX.center + " V Raw: " + analogRead(AXIS_X) + " V Out: " + xOut);
+	//SerialUSB.println((String)"Y: " + axisY.center + " V Raw: " + analogRead(AXIS_Y) + " V Out: " + yOut);
 
 
 	// rotary 1 (aftPanel left)
@@ -508,8 +521,6 @@ void loop()
 
 
 
-	// uncomment for debugging out axis values. remember to uncomment SerialUSB.Begin in setup(). SerialUSB (instead of Serial) outputs on the native port :)
-	//SerialUSB.println((String)"Axis Ctr: " + axisX.center + " V Raw: " + analogRead(AXIS_X) + " V Out: " + xOut);
 
 	delay(16);
 }
