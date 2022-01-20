@@ -73,8 +73,8 @@ Can only be executed in Privileged modes.
 */
 __attribute__((always_inline)) static __INLINE void __enable_irq(void)
 {
-	__ASM volatile ("cpsie i");
-}//
+	//__ASM volatile ("cpsie i");
+}
 
 
 /** \brief  Disable IRQ Interrupts

@@ -1,4 +1,7 @@
 
+#include <Encoder.h>
+
+#include <HID.h>
 #include <Mouse.h>
 #include "Joystick.h"
 
@@ -214,7 +217,7 @@ bool useScrollWheel;
 Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK, 128, 2, true, true, true, true, true, false, false, true, false, false, false);
 
 
-const uint32_t rotaryPulseTime = 80;
+const uint32_t rotaryPulseTime = 40;
 
 class RotaryEncoder
 {
@@ -223,6 +226,8 @@ public:
 	volatile uint32_t Tfwd;
 	volatile int a = 0;
 	volatile int b = 0;
+
+	int32_t rLast = 0;
 };
 
 volatile RotaryEncoder rot0;
@@ -233,6 +238,10 @@ volatile RotaryEncoder rot4;
 volatile RotaryEncoder rot5;
 volatile RotaryEncoder rot6;
 
+
+Encoder* rHead;
+Encoder* rAftL;
+Encoder* rAftR;
 
 bool tgl0L, tgl0R;
 
@@ -265,12 +274,12 @@ void setup()
 	pinMode(RTR0_Ck, INPUT_PULLUP);
 
 	// aft panel inputs 
-	pinMode(RTR1_A, INPUT_PULLUP);
-	pinMode(RTR1_B, INPUT_PULLUP);
+	//pinMode(RTR1_A, INPUT_PULLUP);
+	//pinMode(RTR1_B, INPUT_PULLUP);
 	pinMode(RTR1_Ck, INPUT_PULLUP);
 
-	pinMode(RTR2_A, INPUT_PULLUP);
-	pinMode(RTR2_B, INPUT_PULLUP);
+	//pinMode(RTR2_A, INPUT_PULLUP);
+	//pinMode(RTR2_B, INPUT_PULLUP);
 	pinMode(RTR2_Ck, INPUT_PULLUP);
 
 	pinMode(AFT_SW0, INPUT_PULLUP);
@@ -306,9 +315,9 @@ void setup()
 	rot2.Tback = 0;
 	rot2.Tfwd = 0;
 
-	attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(RTR1_A), interrupt_ROT1, CHANGE);
-	attachInterrupt(digitalPinToInterrupt(RTR2_A), interrupt_ROT2, CHANGE);
+	//attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0, CHANGE);
+	//attachInterrupt(digitalPinToInterrupt(RTR1_A), interrupt_ROT1, CHANGE);
+	//attachInterrupt(digitalPinToInterrupt(RTR2_A), interrupt_ROT2, CHANGE);
 
 	attachInterrupt(digitalPinToInterrupt(RTR3_A), interrupt_ROT3, CHANGE);
 	attachInterrupt(digitalPinToInterrupt(RTR4_A), interrupt_ROT4, CHANGE);
@@ -328,12 +337,18 @@ void setup()
 	
 	Mouse.begin();
 
+
+	rHead = new Encoder(RTR0_A, RTR0_B);
+	rAftL = new Encoder(RTR1_A, RTR1_B);
+	rAftR = new Encoder(RTR2_A, RTR2_B);
+
 	//SerialUSB.begin(115200);
 }
 
 uint32_t mils;
 uint32_t tLastCrsRecenter = 0;
 
+int32_t r;
 
 void loop()
 {
@@ -423,6 +438,14 @@ void loop()
 	
 	// rotary 0 (head)
 	joystick.setButton(Rtr0_Click, digitalRead(RTR0_Ck) == LOW);
+
+
+	r = rHead->read() / 4;
+	if (r > rot0.rLast && rot0.Tback + rotaryPulseTime < mils) rot0.Tfwd = mils;
+	if (r < rot0.rLast && rot0.Tfwd + rotaryPulseTime < mils) rot0.Tback = mils;
+	rot0.rLast = r;
+
+
 	joystick.setButton(Rtr0_back, rot0.Tback + rotaryPulseTime > mils);
 	joystick.setButton(Rtr0_fwd, rot0.Tfwd + rotaryPulseTime > mils);
 	   
@@ -475,12 +498,29 @@ void loop()
 
 	// rotary 1 (aftPanel left)
 	joystick.setButton(AftPanel_Rtr1_click, digitalRead(RTR1_Ck) == LOW);
+	
+	r = rAftL->read() / 4;
+	if (r > rot1.rLast && rot1.Tback + rotaryPulseTime < mils) rot1.Tfwd = mils;
+	if (r < rot1.rLast && rot1.Tfwd + rotaryPulseTime < mils) rot1.Tback = mils;
+	rot1.rLast = r;
+
 	joystick.setButton(AftPanel_Rtr1_back, rot1.Tback + rotaryPulseTime > mils);
 	joystick.setButton(AftPanel_Rtr1_fwd, rot1.Tfwd + rotaryPulseTime > mils);
+
+
 	// rotary 2 (aftPanel right)
 	joystick.setButton(AftPanel_Rtr2_click, digitalRead(RTR2_Ck) == LOW);
+
+
+	r = rAftR->read() / 4;
+	if (r > rot2.rLast && rot2.Tback + rotaryPulseTime < mils) rot2.Tfwd = mils;
+	if (r < rot2.rLast && rot2.Tfwd + rotaryPulseTime < mils) rot2.Tback = mils;
+	rot2.rLast = r;
+
 	joystick.setButton(AftPanel_Rtr2_back, rot2.Tback + rotaryPulseTime > mils);
 	joystick.setButton(AftPanel_Rtr2_fwd, rot2.Tfwd + rotaryPulseTime > mils);
+
+
 	// aft panel switch
 	joystick.setButton(AftPanel_SW_up, digitalRead(AFT_SW0) == LOW);
 	joystick.setButton(AftPanel_SW_dn, digitalRead(AFT_SW1) == LOW);
@@ -692,16 +732,17 @@ void encoderRead(int pinA, int pinB, volatile RotaryEncoder* rot, bool useScroll
 {
 	int a = digitalRead(pinA);
 	int b = digitalRead(pinB);
-
-	if (rot->Tfwd > millis() - rotaryPulseTime || rot->Tback > millis() - rotaryPulseTime)
-		return; 
-
+	
 	if (a != rot->a)
 	{
 		rot->a = a;
 		if (b != rot->b)
 		{
 			rot->b = b;
+
+
+			if (rot->Tfwd > millis() - rotaryPulseTime || rot->Tback > millis() - rotaryPulseTime)
+				return;
 
 			if (a == b)
 			{

@@ -119,7 +119,7 @@ bool toggle1Last = 0;
 unsigned long toggle2TLast = 0;
 bool toggle2Last = 0;
 
-unsigned long binaryPulseTime = 120;
+unsigned long binaryPulseTime = 60;
 
 int keyDown = 0;
 unsigned long tKeyDown = 0;
@@ -413,7 +413,6 @@ int encoderCount = 0;
 unsigned long encoderTLast = 0;
 void processEncoder(int rIdxA, int rIdxB)
 {
-	if (encoderTLast + binaryPulseTime > millis()) return;
 
 	int8_t rotary = read_encoder(muxShield.digitalReadMS(ROTARYA), muxShield.digitalReadMS(ROTARYB));
 
@@ -431,18 +430,20 @@ void processEncoder(int rIdxA, int rIdxB)
 		//delay(2);
 		encoderCount += rotary;
 
-		if (abs(encoderCount) >= 1)
+		if (abs(encoderCount) >= 3)
 		{
-			if (encoderCount > 0)
+			if (encoderCount > 0 && encoderTLast + binaryPulseTime < millis())
 			{
 				joystick.pressButton(rIdxA);
+				encoderTLast = millis() + binaryPulseTime;
+
 			}
-			if (encoderCount < 0)
+			if (encoderCount < 0 && encoderTLast + binaryPulseTime < millis())
 			{
 				joystick.pressButton(rIdxB);
+				encoderTLast = millis() + binaryPulseTime;
 			}
 
-			encoderTLast = millis() + binaryPulseTime;
 		}
 	}
 

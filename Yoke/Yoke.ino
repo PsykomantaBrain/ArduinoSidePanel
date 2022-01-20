@@ -19,6 +19,8 @@
 
 // The setup() function runs once each time the micro-controller starts
 
+
+
 #include <LiquidCrystal_I2C.h>
 #include <Wire.h>
 
@@ -406,8 +408,11 @@ void interrupt_ROT1()
 
 void encoderRead(int pinA, int pinB, volatile int* a0, volatile int* b0, volatile uint32_t* rot_Tfwd, volatile uint32_t* rot_Tback, bool useScrollWheel)
 {
+    uint32_t mils = millis();
+
     int a = digitalRead(pinA);
     int b = digitalRead(pinB);
+    
     if (a != *a0)
     {
         *a0 = a;
@@ -417,13 +422,19 @@ void encoderRead(int pinA, int pinB, volatile int* a0, volatile int* b0, volatil
 
             if (a == b)
             {
-                *rot_Tfwd = millis();
-                if (useScrollWheel) Mouse.move(0, 0, 1);
+                if (rot0_Tback + rotaryPulseTime < mils)
+                {
+                    *rot_Tfwd = mils;
+                    if (useScrollWheel) Mouse.move(0, 0, 1);
+                }
             }
             else
             {
-                *rot_Tback = millis();
-                if (useScrollWheel) Mouse.move(0, 0, -1);
+                if (rot0_Tfwd + rotaryPulseTime < mils)
+                {
+                    *rot_Tback = mils;
+                    if (useScrollWheel) Mouse.move(0, 0, -1);
+                }
             }
         }
     }

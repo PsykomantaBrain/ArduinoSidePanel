@@ -136,9 +136,12 @@ C:\Users\ffala\AppData\Local\Temp\VMBuilds\Collective\arduino_due_x\Debug\Collec
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/USB/USBAPI.h \
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/RingBuffer.h \
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/Stream.h \
- C:\Program\ Files\ (x86)\Arduino\libraries\Mouse\src/Mouse.h \
+ F:\HarvesteR\Arduino\libraries\Encoder/Encoder.h \
+ F:\HarvesteR\Arduino\libraries\Encoder/utility/direct_pin_read.h \
+ F:\HarvesteR\Arduino\libraries\Encoder/utility/interrupt_pins.h \
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\libraries\HID\src/HID.h \
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/USB/PluggableUSB.h \
  C:\Users\ffala\AppData\Local\arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino/USB/USBAPI.h \
- E:\HarvesteR\Arduino\libraries\Joystick\src/Joystick.h \
- E:\HarvesteR\Arduino\libraries\Joystick\src/DynamicHID/DynamicHID.h
+ C:\Program\ Files\ (x86)\Arduino\libraries\Mouse\src/Mouse.h \
+ F:\HarvesteR\Arduino\libraries\Joystick\src/Joystick.h \
+ F:\HarvesteR\Arduino\libraries\Joystick\src/DynamicHID/DynamicHID.h
