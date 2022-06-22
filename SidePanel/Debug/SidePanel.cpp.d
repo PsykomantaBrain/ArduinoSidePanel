@@ -13,8 +13,9 @@ C:\Users\ffala\AppData\Local\Temp\VMBuilds\SidePanel\leonardo\Debug\SidePanel.cp
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/USBDesc.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/USBCore.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\variants\leonardo/pins_arduino.h \
- F:\HarvesteR\Arduino\libraries\MuxShield/MuxShield.h \
+ c:\program\ files\microsoft\ visual\ studio\2022\community\common7\ide\extensions\2lz1l1ad.jaq\Micro\ Platforms\default\debuggers\VM_DBG/VM_DBG.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
+ F:\HarvesteR\Arduino\libraries\MuxShield/MuxShield.h \
  F:\HarvesteR\Arduino\libraries\Joystick\src/Joystick.h \
  F:\HarvesteR\Arduino\libraries\Joystick\src/DynamicHID/DynamicHID.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/PluggableUSB.h \

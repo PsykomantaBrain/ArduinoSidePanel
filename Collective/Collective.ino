@@ -1,6 +1,4 @@
 
-#include <Encoder.h>
-
 #include <HID.h>
 #include <Mouse.h>
 #include "Joystick.h"
@@ -9,7 +7,6 @@
 
 //High impedance pin mode
 #define OUTPUT_OFF INPUT_PULLUP
-
 
 
 // head matrix mapping
@@ -230,18 +227,27 @@ public:
 	int32_t rLast = 0;
 };
 
-volatile RotaryEncoder rot0;
-volatile RotaryEncoder rot1;
-volatile RotaryEncoder rot2;
+class Rotary
+{
+public:
+	volatile int bLast;
+
+	volatile uint32_t Tlock = -1;
+
+	volatile int count = 0;
+	
+	volatile uint32_t Tback;
+	volatile uint32_t Tfwd;
+};
+
+volatile Rotary rtr0; 
+volatile Rotary rtr1; 
+volatile Rotary rtr2;
 volatile RotaryEncoder rot3;
 volatile RotaryEncoder rot4;
 volatile RotaryEncoder rot5;
 volatile RotaryEncoder rot6;
 
-
-Encoder* rHead;
-Encoder* rAftL;
-Encoder* rAftR;
 
 bool tgl0L, tgl0R;
 
@@ -274,12 +280,12 @@ void setup()
 	pinMode(RTR0_Ck, INPUT_PULLUP);
 
 	// aft panel inputs 
-	//pinMode(RTR1_A, INPUT_PULLUP);
-	//pinMode(RTR1_B, INPUT_PULLUP);
+	pinMode(RTR1_A, INPUT_PULLUP);
+	pinMode(RTR1_B, INPUT_PULLUP);
 	pinMode(RTR1_Ck, INPUT_PULLUP);
 
-	//pinMode(RTR2_A, INPUT_PULLUP);
-	//pinMode(RTR2_B, INPUT_PULLUP);
+	pinMode(RTR2_A, INPUT_PULLUP);
+	pinMode(RTR2_B, INPUT_PULLUP);
 	pinMode(RTR2_Ck, INPUT_PULLUP);
 
 	pinMode(AFT_SW0, INPUT_PULLUP);
@@ -308,16 +314,22 @@ void setup()
 	pinMode(DEV_SCRWH, INPUT_PULLUP);
 	pinMode(DEV_POVTBS, INPUT_PULLUP);
 
-	rot0.Tback = 0;
-	rot0.Tfwd  = 0;
-	rot1.Tback = 0;
-	rot1.Tfwd = 0;
-	rot2.Tback = 0;
-	rot2.Tfwd = 0;
 
-	//attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0, CHANGE);
-	//attachInterrupt(digitalPinToInterrupt(RTR1_A), interrupt_ROT1, CHANGE);
-	//attachInterrupt(digitalPinToInterrupt(RTR2_A), interrupt_ROT2, CHANGE);
+	rtr0.Tback = 0;
+	rtr0.Tfwd = 0;
+	attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0_re, RISING);
+	attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0_fe, FALLING);
+
+	rtr1.Tback = 0;
+	rtr1.Tfwd = 0;
+	attachInterrupt(digitalPinToInterrupt(RTR1_A), interrupt_ROT1_re, RISING);	
+	attachInterrupt(digitalPinToInterrupt(RTR1_A), interrupt_ROT1_fe, FALLING);
+
+	rtr2.Tback = 0;
+	rtr2.Tfwd = 0;
+	attachInterrupt(digitalPinToInterrupt(RTR2_A), interrupt_ROT2_re, RISING);
+	attachInterrupt(digitalPinToInterrupt(RTR2_A), interrupt_ROT2_fe, FALLING);
+		
 
 	attachInterrupt(digitalPinToInterrupt(RTR3_A), interrupt_ROT3, CHANGE);
 	attachInterrupt(digitalPinToInterrupt(RTR4_A), interrupt_ROT4, CHANGE);
@@ -337,10 +349,6 @@ void setup()
 	
 	Mouse.begin();
 
-
-	rHead = new Encoder(RTR0_A, RTR0_B);
-	rAftL = new Encoder(RTR1_A, RTR1_B);
-	rAftR = new Encoder(RTR2_A, RTR2_B);
 
 	//SerialUSB.begin(115200);
 }
@@ -439,15 +447,8 @@ void loop()
 	// rotary 0 (head)
 	joystick.setButton(Rtr0_Click, digitalRead(RTR0_Ck) == LOW);
 
-
-	r = rHead->read() / 4;
-	if (r > rot0.rLast && rot0.Tback + rotaryPulseTime < mils) rot0.Tfwd = mils;
-	if (r < rot0.rLast && rot0.Tfwd + rotaryPulseTime < mils) rot0.Tback = mils;
-	rot0.rLast = r;
-
-
-	joystick.setButton(Rtr0_back, rot0.Tback + rotaryPulseTime > mils);
-	joystick.setButton(Rtr0_fwd, rot0.Tfwd + rotaryPulseTime > mils);
+	joystick.setButton(Rtr0_back, rtr0.Tback + rotaryPulseTime > mils);
+	joystick.setButton(Rtr0_fwd, rtr0.Tfwd + rotaryPulseTime > mils);
 	   
 
 	// the nav switch is also POV2
@@ -499,26 +500,15 @@ void loop()
 	// rotary 1 (aftPanel left)
 	joystick.setButton(AftPanel_Rtr1_click, digitalRead(RTR1_Ck) == LOW);
 	
-	r = rAftL->read() / 4;
-	if (r > rot1.rLast && rot1.Tback + rotaryPulseTime < mils) rot1.Tfwd = mils;
-	if (r < rot1.rLast && rot1.Tfwd + rotaryPulseTime < mils) rot1.Tback = mils;
-	rot1.rLast = r;
-
-	joystick.setButton(AftPanel_Rtr1_back, rot1.Tback + rotaryPulseTime > mils);
-	joystick.setButton(AftPanel_Rtr1_fwd, rot1.Tfwd + rotaryPulseTime > mils);
+	joystick.setButton(AftPanel_Rtr1_back, rtr1.Tback + rotaryPulseTime > mils);
+	joystick.setButton(AftPanel_Rtr1_fwd, rtr1.Tfwd + rotaryPulseTime > mils);
 
 
 	// rotary 2 (aftPanel right)
 	joystick.setButton(AftPanel_Rtr2_click, digitalRead(RTR2_Ck) == LOW);
 
-
-	r = rAftR->read() / 4;
-	if (r > rot2.rLast && rot2.Tback + rotaryPulseTime < mils) rot2.Tfwd = mils;
-	if (r < rot2.rLast && rot2.Tfwd + rotaryPulseTime < mils) rot2.Tback = mils;
-	rot2.rLast = r;
-
-	joystick.setButton(AftPanel_Rtr2_back, rot2.Tback + rotaryPulseTime > mils);
-	joystick.setButton(AftPanel_Rtr2_fwd, rot2.Tfwd + rotaryPulseTime > mils);
+	joystick.setButton(AftPanel_Rtr2_back, rtr2.Tback + rotaryPulseTime > mils);
+	joystick.setButton(AftPanel_Rtr2_fwd, rtr2.Tfwd + rotaryPulseTime > mils);
 
 
 	// aft panel switch
@@ -696,18 +686,7 @@ void setNavHat(bool up, bool right, bool down, bool left)
 }
 
 
-void interrupt_ROT0()
-{
-	encoderRead(RTR0_A, RTR0_B, &rot0, false);
-}
-void interrupt_ROT1()
-{
-	encoderRead(RTR1_A, RTR1_B, &rot1, false);
-}
-void interrupt_ROT2()
-{
-	encoderRead(RTR2_A, RTR2_B, &rot2, false);
-}
+
 void interrupt_ROT3()
 {
 	encoderRead(RTR3_A, RTR3_B, &rot3, false);
@@ -724,10 +703,7 @@ void interrupt_ROT6()
 {
 	encoderRead(RTR6_A, RTR6_B, &rot6, false);
 }
-
-
-
-//void encoderRead(int pinA, int pinB, volatile int* a0, volatile int* b0, volatile uint32_t* rot_Tfwd, volatile uint32_t* rot_Tback, bool useScrollWheel)
+// less-stable encoder read, but works well for the concentric module ones. 
 void encoderRead(int pinA, int pinB, volatile RotaryEncoder* rot, bool useScrollWheel)
 {
 	int a = digitalRead(pinA);
@@ -756,4 +732,89 @@ void encoderRead(int pinA, int pinB, volatile RotaryEncoder* rot, bool useScroll
 			}
 		}
 	}
+}
+
+
+
+
+void interrupt_ROT0_re()
+{
+	encoderStableRead_RisingEdge(RTR0_B, &rtr0);
+}
+void interrupt_ROT0_fe()
+{
+	encoderStableRead_FallingEdge(RTR0_B, &rtr0);
+}
+
+void interrupt_ROT1_re() 
+{
+	encoderStableRead_RisingEdge(RTR1_B, &rtr1); 
+}
+
+void interrupt_ROT1_fe() 
+{
+	encoderStableRead_FallingEdge(RTR1_B, &rtr1); 
+}
+
+void interrupt_ROT2_re()
+{
+	encoderStableRead_RisingEdge(RTR2_B, &rtr2); 
+}
+void interrupt_ROT2_fe()
+{
+	encoderStableRead_FallingEdge(RTR2_B, &rtr2); 
+}
+
+
+
+
+uint32_t rtrLockTimeMS = 8; // tuned to something that seems good. Probably different for each encoder. could maybe make this a member of the Rotary class. 8ms seems to give the best reads for both
+
+// a more stable way to read bouncy-af encoders, as seen on Hackaday:
+// https://hackaday.com/2022/04/20/a-rotary-encoder-how-hard-can-it-be/
+// reads hopefully-not-bouncing pin B on transitions of pin A
+void encoderStableRead_RisingEdge(int pinB, volatile Rotary* rtr)
+{
+	int b = digitalRead(pinB);
+	if (rtr->Tlock != -1 && rtr->bLast == b) return;
+
+	rtr->Tlock = millis() + rtrLockTimeMS;
+	rtr->bLast = b;
+
+}
+void encoderStableRead_FallingEdge(int pinB, volatile Rotary* rtr)
+{
+	int b;
+	
+	if (rtr->Tlock < millis())
+	{
+		rtr->Tlock = -1;
+		rtr->bLast = 2; // impossible value to force a read
+	}
+
+	if (rtr->Tlock != -1) return;
+
+	b = digitalRead(pinB);
+
+	if (b == rtr->bLast) return;
+
+
+	if (b)
+	{
+		if (rtr->Tback + rotaryPulseTime > millis()) return; // no sign changes while we are still pulsing the other way
+
+		rtr->Tfwd = millis();
+		rtr->count++;
+	}
+	else
+	{
+		if (rtr->Tfwd + rotaryPulseTime > millis()) return; // no sign changes while we are still pulsing the other way
+
+		rtr->Tback = millis();
+		rtr->count--;
+	}
+
+	rtr->Tlock = mils + rtrLockTimeMS;
+	rtr->bLast = b;
+
 }
