@@ -194,6 +194,8 @@ volatile uint32_t rot1_Tfwd;
 volatile int rot1_a = 0;
 volatile int rot1_b = 0;
 
+int f13;
+
 
 void setup()
 {
@@ -356,7 +358,18 @@ void loop()
     joystick.setButton(Rtr1_fwd, rot1_Tfwd + rotaryPulseTime > mils);
 
     //rh face buttons
-    joystick.setButton(9, !digitalRead(33)); // 탎witch btn 
+    //joystick.setButton(9, !digitalRead(33)); // 탎witch btn     
+    if (digitalRead(33) != f13)
+    {
+        // using F13 key instead of a btn press, to get around Discord reading EVERY btn 10 as push-to-talk input.
+        // Now PTT can be mapped to just btn 32 and F13 for all devices.
+        f13 = digitalRead(33);
+
+        if (!f13)
+            Keyboard.press(KEY_F13);
+        else
+            Keyboard.release(KEY_F13);
+    }
     joystick.setButton(10, !digitalRead(29)); // pushbtn 
     joystick.setButton(11,  !digitalRead(35)); // trim dn
     joystick.setButton(12, !digitalRead(31)); // trim up
@@ -384,8 +397,8 @@ void loop()
     joystick.setButton(30, !digitalRead(49)); // TD
 
     //lh face buttons
-    joystick.setButton(31, !digitalRead(14)); // 탎witch btn 
-    joystick.setButton(32, !digitalRead(15)); // pushbtn 
+    joystick.setButton(32, !digitalRead(14)); // 탎witch btn 
+    joystick.setButton(31, !digitalRead(15)); // pushbtn 
     joystick.setButton(33, !digitalRead(16)); // trim dn
     joystick.setButton(34, !digitalRead(17)); // trim up
 

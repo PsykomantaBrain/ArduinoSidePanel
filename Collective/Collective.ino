@@ -91,7 +91,7 @@
 #define SLR 2
 #define HS 3
 #define GpR 4
-#define GpK 5
+#define GpK 31
 #define TBC 51 // new thumb click on btn 51
 
 #define RG 6
@@ -152,9 +152,9 @@ int t_ForePanel_Tgl0;
 #define AftPanel_Rtr1_fwd 29
 #define AftPanel_Rtr1_click 30
 
-#define AftPanel_Rtr2_back 31
-#define AftPanel_Rtr2_fwd 32
-#define AftPanel_Rtr2_click 33
+#define AftPanel_Rtr2_back 32
+#define AftPanel_Rtr2_fwd 33
+#define AftPanel_Rtr2_click 5
 
 #define AftPanel_SW_up 34
 #define AftPanel_SW_dn 35
@@ -240,9 +240,10 @@ public:
 	volatile uint32_t Tfwd;
 };
 
-volatile Rotary rtr0; 
-volatile Rotary rtr1; 
-volatile Rotary rtr2;
+volatile RotaryEncoder rtr0; 
+volatile RotaryEncoder rtr1; 
+volatile RotaryEncoder rtr2;
+
 volatile RotaryEncoder rot3;
 volatile RotaryEncoder rot4;
 volatile RotaryEncoder rot5;
@@ -317,18 +318,18 @@ void setup()
 
 	rtr0.Tback = 0;
 	rtr0.Tfwd = 0;
-	attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0_re, RISING);
-	attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0_fe, FALLING);
+	attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0, CHANGE);
+	//attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0_fe, FALLING);
 
 	rtr1.Tback = 0;
 	rtr1.Tfwd = 0;
-	attachInterrupt(digitalPinToInterrupt(RTR1_A), interrupt_ROT1_re, RISING);	
-	attachInterrupt(digitalPinToInterrupt(RTR1_A), interrupt_ROT1_fe, FALLING);
+	attachInterrupt(digitalPinToInterrupt(RTR1_A), interrupt_ROT1, CHANGE);	
+	//attachInterrupt(digitalPinToInterrupt(RTR1_A), interrupt_ROT1_fe, FALLING);
 
 	rtr2.Tback = 0;
 	rtr2.Tfwd = 0;
-	attachInterrupt(digitalPinToInterrupt(RTR2_A), interrupt_ROT2_re, RISING);
-	attachInterrupt(digitalPinToInterrupt(RTR2_A), interrupt_ROT2_fe, FALLING);
+	attachInterrupt(digitalPinToInterrupt(RTR2_A), interrupt_ROT2, CHANGE);
+	//attachInterrupt(digitalPinToInterrupt(RTR2_A), interrupt_ROT2_fe, FALLING);
 		
 
 	attachInterrupt(digitalPinToInterrupt(RTR3_A), interrupt_ROT3, CHANGE);
@@ -440,8 +441,8 @@ void loop()
 	joystick.setZAxis(zOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
 	joystick.setThrottle(tOut * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
 
-	joystick.setButton(GpR, digitalRead(BTN4) == LOW);
-	joystick.setButton(GpK, digitalRead(BTN5) == LOW);
+	joystick.setButton(GpK, digitalRead(BTN4) == LOW);
+	joystick.setButton(GpR, digitalRead(BTN5) == LOW);
 	joystick.setButton(TBC, digitalRead(BTN_TBC) == LOW);
 	
 	// rotary 0 (head)
@@ -686,6 +687,18 @@ void setNavHat(bool up, bool right, bool down, bool left)
 }
 
 
+void interrupt_ROT0()
+{
+	encoderRead(RTR0_A, RTR0_B, &rtr0, false);
+}
+void interrupt_ROT1()
+{
+	encoderRead(RTR1_A, RTR1_B, &rtr1, false);
+}
+void interrupt_ROT2()
+{
+	encoderRead(RTR2_A, RTR2_B, &rtr2, false);
+}
 
 void interrupt_ROT3()
 {
@@ -703,7 +716,7 @@ void interrupt_ROT6()
 {
 	encoderRead(RTR6_A, RTR6_B, &rot6, false);
 }
-// less-stable encoder read, but works well for the concentric module ones. 
+// pretty-stable encoder read, seems to work well for the concentric module ones. 
 void encoderRead(int pinA, int pinB, volatile RotaryEncoder* rot, bool useScrollWheel)
 {
 	int a = digitalRead(pinA);
@@ -737,38 +750,38 @@ void encoderRead(int pinA, int pinB, volatile RotaryEncoder* rot, bool useScroll
 
 
 
-void interrupt_ROT0_re()
-{
-	encoderStableRead_RisingEdge(RTR0_B, &rtr0);
-}
-void interrupt_ROT0_fe()
-{
-	encoderStableRead_FallingEdge(RTR0_B, &rtr0);
-}
-
-void interrupt_ROT1_re() 
-{
-	encoderStableRead_RisingEdge(RTR1_B, &rtr1); 
-}
-
-void interrupt_ROT1_fe() 
-{
-	encoderStableRead_FallingEdge(RTR1_B, &rtr1); 
-}
-
-void interrupt_ROT2_re()
-{
-	encoderStableRead_RisingEdge(RTR2_B, &rtr2); 
-}
-void interrupt_ROT2_fe()
-{
-	encoderStableRead_FallingEdge(RTR2_B, &rtr2); 
-}
-
-
+//void interrupt_ROT0_re()
+//{
+//	encoderStableRead_RisingEdge(RTR0_B, &rtr0);
+//}
+//void interrupt_ROT0_fe()
+//{
+//	encoderStableRead_FallingEdge(RTR0_B, &rtr0);
+//}
+//
+//void interrupt_ROT1_re() 
+//{
+//	encoderStableRead_RisingEdge(RTR1_B, &rtr1); 
+//}
+//
+//void interrupt_ROT1_fe() 
+//{
+//	encoderStableRead_FallingEdge(RTR1_B, &rtr1); 
+//}
+//
+//void interrupt_ROT2_re()
+//{
+//	encoderStableRead_RisingEdge(RTR2_B, &rtr2); 
+//}
+//void interrupt_ROT2_fe()
+//{
+//	encoderStableRead_FallingEdge(RTR2_B, &rtr2); 
+//}
 
 
-uint32_t rtrLockTimeMS = 8; // tuned to something that seems good. Probably different for each encoder. could maybe make this a member of the Rotary class. 8ms seems to give the best reads for both
+
+
+uint32_t rtrLockTimeMS = 6; // tuned to something that seems good. Probably different for each encoder. could maybe make this a member of the Rotary class. 8ms seems to give the best reads for both
 
 // a more stable way to read bouncy-af encoders, as seen on Hackaday:
 // https://hackaday.com/2022/04/20/a-rotary-encoder-how-hard-can-it-be/

@@ -136,8 +136,6 @@ C:\Users\ffala\AppData\Local\Temp\VMBuilds\Collective\arduino_due_x\Debug\Collec
  F:\HarvesteR\Arduino\packages\arduino\hardware\sam\1.6.12\cores\arduino/USB/USBAPI.h \
  F:\HarvesteR\Arduino\packages\arduino\hardware\sam\1.6.12\cores\arduino/RingBuffer.h \
  F:\HarvesteR\Arduino\packages\arduino\hardware\sam\1.6.12\cores\arduino/Stream.h \
- c:\program\ files\microsoft\ visual\ studio\2022\community\common7\ide\extensions\2lz1l1ad.jaq\Micro\ Platforms\default\debuggers\VM_DBG/VM_DBG.h \
- c:\program\ files\microsoft\ visual\ studio\2022\community\common7\ide\extensions\2lz1l1ad.jaq\Micro\ Platforms\default\debuggers\VM_DBG/VM_Boards.h \
  F:\HarvesteR\Arduino\packages\arduino\hardware\sam\1.6.12\libraries\HID\src/HID.h \
  F:\HarvesteR\Arduino\packages\arduino\hardware\sam\1.6.12\cores\arduino/USB/PluggableUSB.h \
  F:\HarvesteR\Arduino\packages\arduino\hardware\sam\1.6.12\cores\arduino/USB/USBAPI.h \
