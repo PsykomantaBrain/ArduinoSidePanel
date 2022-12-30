@@ -20,7 +20,25 @@ Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTIC
 								false, false, false //accel, brake, steering
 							);
 
+class AxisCalibration
+{
+public:
+	double max;
+	double min;
+	double center;
+	double deadzone;
 
+	AxisCalibration(double pMin, double pCenter, double pMax, double dz = 0.0)
+	{
+		max = pMax;
+		min = pMin;
+		center = pCenter;
+		deadzone = dz;
+	}
+};
+
+AxisCalibration axisX = AxisCalibration(395, 2897, 3760, 5);
+AxisCalibration axisY = AxisCalibration(315, 2258, 4056, 5);
 
 
 
@@ -39,27 +57,34 @@ int dotDelay = 80;
 
 
 
-void setup() {
+void setup() 
+{
 	pinMode(LED_BUILTIN, OUTPUT);
+	
 	
 	analogReadResolution(12);
 
-	joystick.begin();
+	
 	joystick.setXAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	joystick.setYAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	joystick.setZAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	joystick.setThrottleRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	joystick.setRxAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 	joystick.setRyAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
-
-	Mouse.begin();
+	joystick.begin();
 
 	
+	Mouse.begin();
+
+	Serial.begin(115200);
+	SerialUSB.println((String)"HRV Skycontroller");
 }
 
 void loop()
 {
-	flashMorse(text);
+	SerialUSB.println((String)"A0: " + analogRead(0) + " | A1: " + analogRead(1));
+	delay(16);
+	//flashMorse(text);
 }
 
 void flashMorse(char* txt)
