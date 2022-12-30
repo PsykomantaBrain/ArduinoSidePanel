@@ -6,7 +6,7 @@
 			All non-arduino files created by visual micro and all visual studio project or solution files can be freely deleted and are not required to compile a sketch (do not delete your own code!).
 			Note: debugger breakpoints are stored in '.sln' or '.asln' files, knowledge of last uploaded breakpoints is stored in the upload.vmps.xml file. Both files are required to continue a previous debug session without needing to compile and upload again
 	
-	Hardware: Arduino Due (Native USB Port)                                                                                           (arduino_due_x), Platform=sam, Package=arduino
+	Hardware: Arduino Due (Native USB Port) (arduino_due_x), Platform=sam, Package=arduino
 */
 
 #if defined(_VMICRO_INTELLISENSE)
@@ -14,7 +14,7 @@
 #ifndef _VSARDUINO_H_
 #define _VSARDUINO_H_
 #define F_CPU 84000000L
-#define ARDUINO 108019
+#define ARDUINO 108010
 #define ARDUINO_SAM_DUE 1
 #define ARDUINO_ARCH_SAM 1
 #define __SAM3X8E__ 1
@@ -257,6 +257,6 @@ typedef enum {
 class Iir16 {};
 #endif
 
-#include "Collective.ino"
+#include "..\Collective.ino"
 #endif
 #endif

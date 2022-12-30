@@ -1,5 +1,6 @@
 # Collective build property overrides
-#
+
+# Could add a new board def for the collective/console, but that would break all existing game bindings... 
 
 
 
