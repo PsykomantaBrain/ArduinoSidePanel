@@ -17,4 +17,9 @@
   <ItemGroup>
     <ClCompile Include="Skycontroller.ino" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="__vm\.Skycontroller.vsarduino.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>
