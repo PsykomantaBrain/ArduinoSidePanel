@@ -156,17 +156,20 @@ void loop()
 
 
 	slx = axisSLX.processAxis(analogRead(PIN_A_SLX));
-	joystick.setRyAxis(slx * JOYSTICK_RANGE_MAX);
-	
 	sly = axisSLY.processAxis(analogRead(PIN_A_SLY));
+	joystick.setRyAxis(slx * JOYSTICK_RANGE_MAX);	
 	joystick.setRzAxis(sly * JOYSTICK_RANGE_MAX);
+	joystick.setButton(6, !digitalRead(PIN_SLB));
 	
 	srx = axisSRX.processAxis(analogRead(PIN_A_SRX));
-	joystick.setS0Axis(srx * JOYSTICK_RANGE_MAX);
-
 	sry = axisSRY.processAxis(analogRead(PIN_A_SRY));
+	joystick.setS0Axis(srx * JOYSTICK_RANGE_MAX);
 	joystick.setS1Axis(sry * JOYSTICK_RANGE_MAX);
+	joystick.setButton(7, !digitalRead(PIN_SRB));
 	
+
+
+
 	joystick.sendState();
 
 	delay(16);
