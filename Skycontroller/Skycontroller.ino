@@ -8,20 +8,17 @@
 //High impedance pin mode
 #define OUTPUT_OFF INPUT_PULLUP
 
-// axis output 
-#define JOYSTICK_RANGE_MIN 0
-#define JOYSTICK_RANGE_MAX 1023
 
 // input pins for LX/Y and RX/Y axes (analogs 0-3)
 #define PIN_A_LX 0
 #define PIN_A_LY 1
-#define PIN_A_RX 2
-#define PIN_A_RY 3
+#define PIN_A_RX 3
+#define PIN_A_RY 2
 
 
 //input pins for slew (thumbstick) axes and thumbstick buttons (analog 4-7 and digital 51 and 53)
-#define PIN_A_SLX 5
-#define PIN_A_SLY 4
+#define PIN_A_SLX 4
+#define PIN_A_SLY 5
 #define PIN_SLB 42
 
 #define PIN_A_SRX 6
@@ -37,6 +34,9 @@
 #define PIN_BTN_BACK 38
 #define PIN_BTN_GEAR 40
 
+
+#define JOYSTICK_TRAVEL 32767 // should be half of the range
+#define JOYSTICK_CENTER 32767
 
 Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK,
 								12, 0,					//btns, hats
@@ -64,7 +64,7 @@ public:
 	double processAxis(double axis, double response = 1.0)
 	{
 		if (abs(axis - center) < deadzone)
-			return 0.5;
+			return 0.0;
 
 		if (axis < center)
 		{
@@ -79,7 +79,7 @@ public:
 		axis = constrain(axis, -1.0, 1.0);
 
 
-		return axis * 0.5 + 0.5;
+		return axis;
 	}
 
 
@@ -94,8 +94,8 @@ double lerp(double v0, double v1, double t)
 	return (1.0 - t) * v0 + t * v1;
 }
 
-AxisCalibration axisLX = AxisCalibration(395, 2897, 3760, 15);
-AxisCalibration axisLY = AxisCalibration(315, 2258, 4056, 15);
+AxisCalibration axisLX = AxisCalibration(395, 2100, 3760, 15);
+AxisCalibration axisLY = AxisCalibration(315, 2280, 4056, 15);
 AxisCalibration axisRX = AxisCalibration(318, 2100, 3820, 15);
 AxisCalibration axisRY = AxisCalibration(383, 2100, 3845, 15);
 
@@ -105,6 +105,8 @@ AxisCalibration axisSRX = AxisCalibration(1025, 2020, 3370, 50);
 AxisCalibration axisSRY = AxisCalibration(980, 2020, 3220, 50);
 
 
+
+double cos225, sin225;
 
 void setup() 
 {
@@ -135,27 +137,32 @@ void setup()
 	analogReadResolution(12);
 
 	
-	joystick.setXAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
-	joystick.setYAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
-	joystick.setZAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
-	joystick.setRxAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
-	
-	joystick.setRyAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
-	joystick.setRzAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);	
-	joystick.setS0AxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
-	joystick.setS1AxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+	joystick.setXAxisRange(JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM);
+	joystick.setYAxisRange(JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM);
+	joystick.setZAxisRange(JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM);
+	joystick.setRxAxisRange(JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM);
+
+	joystick.setRyAxisRange(JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM);
+	joystick.setRzAxisRange(JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM);
+	joystick.setS0AxisRange(JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM);
+	joystick.setS1AxisRange(JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM);
 	
 	joystick.begin(false);
 
 	
 	Mouse.begin();
-		
+	
+	Serial.begin(115200);
 	//SerialUSB.println((String)"HRV Skycontroller");
+
+	cos225 = cos(PI / 8);
+	sin225 = sin(PI / 8);
 }
 
 double lx, ly, rx, ry;
 double slx, sly, srx, sry;
 
+double rotSlx, rotSly, rotSrx, rotSry;
 
 void loop()
 {
@@ -174,32 +181,49 @@ void loop()
 
 	lx = lerp(lx, axisLX.processAxis(analogRead(PIN_A_LX)), 0.5);
 	ly = lerp(ly, axisLY.processAxis(analogRead(PIN_A_LY)), 0.5);
-	joystick.setXAxis((1.0 - lx) * JOYSTICK_RANGE_MAX);
-	joystick.setYAxis(ly * JOYSTICK_RANGE_MAX);
+	joystick.setXAxis(-lx * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
+	joystick.setYAxis(ly * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
 
+
+	Serial.println((String)"LX: " + (-lx * JOYSTICK_TRAVEL + JOYSTICK_CENTER) + " | LY: " + (int16_t)(ly * JOYSTICK_TRAVEL + JOYSTICK_CENTER));
+	
 	rx = lerp(rx, axisRX.processAxis(analogRead(PIN_A_RX)), 0.5);
-	ry = lerp(ry, axisRY.processAxis(analogRead(PIN_A_RY)), 0.5);
-	joystick.setZAxis(rx * JOYSTICK_RANGE_MAX);
-	joystick.setRxAxis(ry * JOYSTICK_RANGE_MAX);
+	ry = lerp(ry, -axisRY.processAxis(analogRead(PIN_A_RY)), 0.5);
+	joystick.setZAxis(rx * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
+	joystick.setRzAxis(ry * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
 
-
-	slx = lerp(slx, axisSLX.processAxis(analogRead(PIN_A_SLX)), 0.4);
+	slx = lerp(slx, -axisSLX.processAxis(analogRead(PIN_A_SLX)), 0.4);
 	sly = lerp(sly, axisSLY.processAxis(analogRead(PIN_A_SLY)), 0.4);
-	joystick.setRyAxis((1.0 - slx) * JOYSTICK_RANGE_MAX);	
-	joystick.setRzAxis(sly * JOYSTICK_RANGE_MAX);
+
+	// rotate axes slx and sly by 25 degrees ccw
+	rotSlx = slx * cos225 - sly * -sin225;
+	rotSly = slx * -sin225 + sly * cos225;
+
+	Mouse.move(rotSlx * 32, rotSly * 32, 0);
+
+	
+	joystick.setS0Axis(rotSlx * JOYSTICK_TRAVEL + JOYSTICK_CENTER);	
+	joystick.setS1Axis(rotSly * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
 	joystick.setButton(6, !digitalRead(PIN_SLB));
 	
 	srx = lerp(srx, axisSRX.processAxis(analogRead(PIN_A_SRX)), 0.4);
-	sry = lerp(sry, axisSRY.processAxis(analogRead(PIN_A_SRY)), 0.4);
-	joystick.setS0Axis((1.0 - srx) * JOYSTICK_RANGE_MAX);
-	joystick.setS1Axis(sry * JOYSTICK_RANGE_MAX);
-	joystick.setButton(7, !digitalRead(PIN_SRB));
+	sry = lerp(sry, -axisSRY.processAxis(analogRead(PIN_A_SRY)), 0.4);
+
+	// rotate axis srx and sry by 25 degrees cw
+	rotSrx = srx * cos225 - sry * sin225;
+	rotSry = sry * cos225 + srx * sin225;
 	
 
-	joystick.setButton(0, !digitalRead(PIN_BTN_GEAR));
-	joystick.setButton(1, !digitalRead(PIN_BTN_BACK));
-	joystick.setButton(2, !digitalRead(PIN_BTN_UPDN));
-	joystick.setButton(3, !digitalRead(PIN_BTN_HOME));
+	joystick.setRxAxis(rotSrx * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
+	joystick.setRyAxis(rotSry * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
+	joystick.setButton(7, !digitalRead(PIN_SRB));
+	
+	Mouse.move(rotSrx * 32, rotSry * 32, 0);
+	
+	joystick.setButton(0, !digitalRead(PIN_BTN_UPDN));
+	joystick.setButton(1, !digitalRead(PIN_BTN_HOME));
+	joystick.setButton(2, !digitalRead(PIN_BTN_GEAR));
+	joystick.setButton(3, !digitalRead(PIN_BTN_BACK));
 	joystick.setButton(4, !digitalRead(PIN_BTN_REC));
 	joystick.setButton(5, !digitalRead(PIN_BTN_FRM));
 
