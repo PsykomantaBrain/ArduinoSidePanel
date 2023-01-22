@@ -154,8 +154,8 @@ bool DynamicHID_::setup(USBSetup& setup)
 }
 
 DynamicHID_::DynamicHID_(void) : PluggableUSBModule(1, 1, epType),
-                   rootNode(NULL), descriptorSize(0),
-                   protocol(DYNAMIC_HID_REPORT_PROTOCOL), idle(1)
+				   rootNode(NULL), descriptorSize(0),
+				   protocol(DYNAMIC_HID_REPORT_PROTOCOL), idle(1)
 {
 	epType[0] = EP_TYPE_INTERRUPT_IN;
 	PluggableUSB().plug(this);

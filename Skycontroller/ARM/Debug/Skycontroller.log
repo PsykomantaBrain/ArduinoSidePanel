@@ -1,0 +1,221 @@
+﻿  Skycontroller.ino
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino : warning C4117: macro name '__cplusplus' is reserved, '#define' ignored
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(25,1): error C2001: newline in constant
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(25,1): warning C4005: 'USB_MANUFACTURER': macro redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(25,1): message : 'USB_MANUFACTURER' previously declared on the command line
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(26,1): error C2001: newline in constant
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(26,1): warning C4005: 'USB_PRODUCT': macro redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(26,1): message : 'USB_PRODUCT' previously declared on the command line
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(27,1): warning C4117: macro name '__cplusplus' is reserved, '#define' ignored
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(57,1): warning C4005: '_Pragma': macro redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(33,1): message : see previous definition of '_Pragma'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\CMSIS\CMSIS\Include\core_cm3.h(1117,3): error C3861: '__DSB': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\CMSIS\CMSIS\Include\core_cm3.h(1122,3): error C3861: '__DSB': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\tools\arm-none-eabi-gcc\4.8.3-2014q1\lib\gcc\arm-none-eabi\4.8.3\include\stddef.h(212,23): error C2371: 'size_t': redefinition; different basic types
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\predefined C++ types (compiler internal)(16,22): message : see declaration of 'size_t'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\libsam\include\interrupt_sam_nvic.h(123,2): error C3861: '__disable_irq': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\libsam\include\interrupt_sam_nvic.h(123,2): error C3861: '__DMB': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\libsam\include\interrupt_sam_nvic.h(135,3): error C3861: '__DMB': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\libsam\include\interrupt_sam_nvic.h(135,3): error C3861: '__enable_irq': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\wiring.h(75,9): error C2059: syntax error: 'volatile'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBCore.h(124,16): error C2143: syntax error: missing ';' before '<class-head>'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBCore.h(124,16): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBAPI.h(31,7): error C2143: syntax error: missing ';' before '<class-head>'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBAPI.h(32,1): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBCore.h(267,1): error C2086: 'int pragma': redefinition
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBCore.h(121,1): message : see declaration of 'pragma'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\variants\arduino_due_x\variant.cpp(440,3): error C3861: 'adc_init': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\variants\arduino_due_x\variant.cpp(441,32): error C2065: 'ADC_SETTLING_TIME_3': undeclared identifier
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\variants\arduino_due_x\variant.cpp(441,3): error C3861: 'adc_configure_timing': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\variants\arduino_due_x\variant.cpp(442,3): error C3861: 'adc_configure_trigger': identifier not found
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(41,11): error C2374: 'joystick': redefinition; multiple initialization
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(41,11): message : see declaration of 'joystick'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(49,1): error C2011: 'AxisCalibration': 'class' type redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(92,8): error C2084: function 'double lerp(double,double,double)' already has a body
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(92,8): message : see previous definition of 'lerp'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(97,17): error C2079: 'axisLX' uses undefined class 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(97,17): error C2371: 'axisLX': redefinition; different basic types
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(97,17): message : see declaration of 'axisLX'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(97,41): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(98,17): error C2079: 'axisLY' uses undefined class 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(98,17): error C2371: 'axisLY': redefinition; different basic types
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(98,17): message : see declaration of 'axisLY'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(98,41): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(99,17): error C2079: 'axisRX' uses undefined class 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(99,17): error C2371: 'axisRX': redefinition; different basic types
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(99,17): message : see declaration of 'axisRX'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(99,41): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(100,17): error C2079: 'axisRY' uses undefined class 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(100,17): error C2371: 'axisRY': redefinition; different basic types
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(100,17): message : see declaration of 'axisRY'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(100,41): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(102,17): error C2079: 'axisSLX' uses undefined class 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(102,17): error C2371: 'axisSLX': redefinition; different basic types
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(102,17): message : see declaration of 'axisSLX'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(102,42): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(103,17): error C2079: 'axisSLY' uses undefined class 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(103,17): error C2371: 'axisSLY': redefinition; different basic types
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(103,17): message : see declaration of 'axisSLY'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(103,42): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(104,17): error C2079: 'axisSRX' uses undefined class 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(104,17): error C2371: 'axisSRX': redefinition; different basic types
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(104,17): message : see declaration of 'axisSRX'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(104,42): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(105,17): error C2079: 'axisSRY' uses undefined class 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(105,17): error C2371: 'axisSRY': redefinition; different basic types
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(105,17): message : see declaration of 'axisSRY'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(105,42): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(109,8): error C2086: 'double cos225': redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(109,8): message : see declaration of 'cos225'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(109,16): error C2086: 'double sin225': redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(109,16): message : see declaration of 'sin225'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(112,6): error C2084: function 'void setup(void)' already has a body
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(112,6): message : see previous definition of 'setup'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(166,8): error C2086: 'double lx': redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(166,8): message : see declaration of 'lx'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(166,12): error C2086: 'double ly': redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(166,12): message : see declaration of 'ly'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(166,16): error C2086: 'double rx': redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(166,16): message : see declaration of 'rx'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(166,20): error C2086: 'double ry': redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(166,20): message : see declaration of 'ry'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(167,8): error C2086: 'double slx': redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(167,8): message : see declaration of 'slx'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(167,13): error C2086: 'double sly': redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(167,13): message : see declaration of 'sly'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(167,18): error C2086: 'double srx': redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(167,18): message : see declaration of 'srx'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(167,23): error C2086: 'double sry': redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(167,23): message : see declaration of 'sry'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(169,8): error C2086: 'double rotSlx': redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(169,8): message : see declaration of 'rotSlx'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(169,16): error C2086: 'double rotSly': redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(169,16): message : see declaration of 'rotSly'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(169,24): error C2086: 'double rotSrx': redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(169,24): message : see declaration of 'rotSrx'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(169,32): error C2086: 'double rotSry': redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(169,32): message : see declaration of 'rotSry'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(171,6): error C2374: 'mouseBtns': redefinition; multiple initialization
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(171,6): message : see declaration of 'mouseBtns'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(173,6): error C2084: function 'void loop(void)' already has a body
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(173,6): message : see previous definition of 'loop'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(188,22): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(188,7): error C2065: 'lerp': undeclared identifier
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(188,62): error C2568: '=': unable to resolve function overload
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(188,62): message : could be 'double lerp(double,double,double)'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(189,22): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(189,7): error C2065: 'lerp': undeclared identifier
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(189,62): error C2568: '=': unable to resolve function overload
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(189,62): message : could be 'double lerp(double,double,double)'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(196,22): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(196,7): error C2065: 'lerp': undeclared identifier
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(196,62): error C2568: '=': unable to resolve function overload
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(196,62): message : could be 'double lerp(double,double,double)'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(197,23): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(197,7): error C2065: 'lerp': undeclared identifier
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(197,63): error C2568: '=': unable to resolve function overload
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(197,63): message : could be 'double lerp(double,double,double)'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(201,26): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(201,8): error C2065: 'lerp': undeclared identifier
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(201,67): error C2568: '=': unable to resolve function overload
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(201,67): message : could be 'double lerp(double,double,double)'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(202,25): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(202,8): error C2065: 'lerp': undeclared identifier
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(202,66): error C2568: '=': unable to resolve function overload
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(202,66): message : could be 'double lerp(double,double,double)'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(214,25): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(214,8): error C2065: 'lerp': undeclared identifier
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(214,66): error C2568: '=': unable to resolve function overload
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(214,66): message : could be 'double lerp(double,double,double)'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(215,26): error C2027: use of undefined type 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(48,7): message : see declaration of 'AxisCalibration'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(215,8): error C2065: 'lerp': undeclared identifier
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(215,67): error C2568: '=': unable to resolve function overload
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\Skycontroller.ino(215,67): message : could be 'double lerp(double,double,double)'
+  DynamicHID.cpp
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\src\DynamicHID\DynamicHID.cpp : warning C4117: macro name '__cplusplus' is reserved, '#define' ignored
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(25,1): error C2001: newline in constant
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(25,1): warning C4005: 'USB_MANUFACTURER': macro redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(25,1): message : 'USB_MANUFACTURER' previously declared on the command line
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(26,1): error C2001: newline in constant
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(26,1): warning C4005: 'USB_PRODUCT': macro redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(26,1): message : 'USB_PRODUCT' previously declared on the command line
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(27,1): warning C4117: macro name '__cplusplus' is reserved, '#define' ignored
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(57,1): warning C4005: '_Pragma': macro redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(33,1): message : see previous definition of '_Pragma'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\CMSIS\CMSIS\Include\core_cm3.h(1117,3): error C3861: '__DSB': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\CMSIS\CMSIS\Include\core_cm3.h(1122,3): error C3861: '__DSB': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\tools\arm-none-eabi-gcc\4.8.3-2014q1\lib\gcc\arm-none-eabi\4.8.3\include\stddef.h(212,23): error C2371: 'size_t': redefinition; different basic types
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\predefined C++ types (compiler internal)(16,22): message : see declaration of 'size_t'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\libsam\include\interrupt_sam_nvic.h(123,2): error C3861: '__disable_irq': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\libsam\include\interrupt_sam_nvic.h(123,2): error C3861: '__DMB': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\libsam\include\interrupt_sam_nvic.h(135,3): error C3861: '__DMB': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\libsam\include\interrupt_sam_nvic.h(135,3): error C3861: '__enable_irq': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\wiring.h(75,9): error C2059: syntax error: 'volatile'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBCore.h(124,16): error C2143: syntax error: missing ';' before '<class-head>'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBCore.h(124,16): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBAPI.h(31,7): error C2143: syntax error: missing ';' before '<class-head>'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBAPI.h(32,1): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBCore.h(267,1): error C2086: 'int pragma': redefinition
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBCore.h(121,1): message : see declaration of 'pragma'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\variants\arduino_due_x\variant.cpp(440,3): error C3861: 'adc_init': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\variants\arduino_due_x\variant.cpp(441,32): error C2065: 'ADC_SETTLING_TIME_3': undeclared identifier
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\variants\arduino_due_x\variant.cpp(441,3): error C3861: 'adc_configure_timing': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\variants\arduino_due_x\variant.cpp(442,3): error C3861: 'adc_configure_trigger': identifier not found
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\src\DynamicHID\DynamicHID.cpp(99,16): error C2131: expression did not evaluate to a constant
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\src\DynamicHID\DynamicHID.cpp(99,12): message : failure was caused by a read of a variable outside its lifetime
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\src\DynamicHID\DynamicHID.cpp(99,12): message : see usage of 'len'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\src\DynamicHID\DynamicHID.cpp(100,7): error C3863: array type 'uint8_t [len+1]' is not assignable
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\src\DynamicHID\DynamicHID.cpp(160,14): error C2065: 'EP_TYPE_INTERRUPT_IN': undeclared identifier
+  Joystick.cpp
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\src\Joystick.cpp : warning C4117: macro name '__cplusplus' is reserved, '#define' ignored
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(25,1): error C2001: newline in constant
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(25,1): warning C4005: 'USB_MANUFACTURER': macro redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(25,1): message : 'USB_MANUFACTURER' previously declared on the command line
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(26,1): error C2001: newline in constant
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(26,1): warning C4005: 'USB_PRODUCT': macro redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(26,1): message : 'USB_PRODUCT' previously declared on the command line
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(27,1): warning C4117: macro name '__cplusplus' is reserved, '#define' ignored
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(57,1): warning C4005: '_Pragma': macro redefinition
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\__vm\.Skycontroller.vsarduino.h(33,1): message : see previous definition of '_Pragma'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\CMSIS\CMSIS\Include\core_cm3.h(1117,3): error C3861: '__DSB': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\CMSIS\CMSIS\Include\core_cm3.h(1122,3): error C3861: '__DSB': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\tools\arm-none-eabi-gcc\4.8.3-2014q1\lib\gcc\arm-none-eabi\4.8.3\include\stddef.h(212,23): error C2371: 'size_t': redefinition; different basic types
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\predefined C++ types (compiler internal)(16,22): message : see declaration of 'size_t'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\libsam\include\interrupt_sam_nvic.h(123,2): error C3861: '__disable_irq': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\libsam\include\interrupt_sam_nvic.h(123,2): error C3861: '__DMB': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\libsam\include\interrupt_sam_nvic.h(135,3): error C3861: '__DMB': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\system\libsam\include\interrupt_sam_nvic.h(135,3): error C3861: '__enable_irq': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\wiring.h(75,9): error C2059: syntax error: 'volatile'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBCore.h(124,16): error C2143: syntax error: missing ';' before '<class-head>'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBCore.h(124,16): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBAPI.h(31,7): error C2143: syntax error: missing ';' before '<class-head>'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBAPI.h(32,1): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBCore.h(267,1): error C2086: 'int pragma': redefinition
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\cores\arduino\USB\USBCore.h(121,1): message : see declaration of 'pragma'
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\variants\arduino_due_x\variant.cpp(440,3): error C3861: 'adc_init': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\variants\arduino_due_x\variant.cpp(441,32): error C2065: 'ADC_SETTLING_TIME_3': undeclared identifier
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\variants\arduino_due_x\variant.cpp(441,3): error C3861: 'adc_configure_timing': identifier not found
+C:\Users\HarvesteR\AppData\Local\Arduino15\packages\arduino\hardware\sam\1.6.12\variants\arduino_due_x\variant.cpp(442,3): error C3861: 'adc_configure_trigger': identifier not found
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\src\Joystick.cpp(661,15): error C2131: expression did not evaluate to a constant
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\src\Joystick.cpp(661,15): message : failure was caused by a read of a variable outside its lifetime
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\src\Joystick.cpp(661,15): message : see usage of 'this'
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\src\Joystick.cpp(667,15): error C3863: array type 'uint8_t [this->95]' is not assignable
+H:\HRV Simpit Controls\HRV Simpit Code\Skycontroller\src\Joystick.cpp(688,17): error C3863: array type 'uint8_t [this->95]' is not assignable
+  Generating Code...

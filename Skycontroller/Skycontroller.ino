@@ -1,6 +1,6 @@
 
 
-#include "Joystick.h"
+#include "src/Joystick.h"
 #include "Mouse.h"
 
 #define sign(x) ((x) > 0 ? 1: ((x) < 0 ? -1 : 0))
@@ -36,10 +36,10 @@
 
 
 #define JOYSTICK_TRAVEL 32767 // should be half of the range
-#define JOYSTICK_CENTER 32767
+#define JOYSTICK_CENTER 0
 
 Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK,
-								12, 0,					//btns, hats
+								12, 2,					//btns, hats
 								true, true, true, true,	// X (lx), Y (ly), Z (rx), Rx (ry)
 								true, true, true, true,	// Ry (slx), Rz (sly), s0 (srx), s1(sry)
 								false, false, false		//accel, brake, steering
@@ -108,8 +108,11 @@ AxisCalibration axisSRY = AxisCalibration(980, 2020, 3220, 50);
 
 double cos225, sin225;
 
+
 void setup() 
 {
+	// select mode based on something (TBD)... might neeo a button held down at startup or something
+
 	pinMode(LED_BUILTIN, OUTPUT);
 	
 	pinMode(A0, INPUT_PULLUP);
@@ -136,6 +139,7 @@ void setup()
 
 	analogReadResolution(12);
 
+	joystick.joystick_mode = Mode_WIN;
 	
 	joystick.setXAxisRange(JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM);
 	joystick.setYAxisRange(JOYSTICK_DEFAULT_AXIS_MINIMUM, JOYSTICK_DEFAULT_AXIS_MAXIMUM);
@@ -164,6 +168,8 @@ double slx, sly, srx, sry;
 
 double rotSlx, rotSly, rotSrx, rotSry;
 
+byte mouseBtns = 0;
+
 void loop()
 {
 	
@@ -185,7 +191,7 @@ void loop()
 	joystick.setYAxis(ly * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
 
 
-	Serial.println((String)"LX: " + (-lx * JOYSTICK_TRAVEL + JOYSTICK_CENTER) + " | LY: " + (int16_t)(ly * JOYSTICK_TRAVEL + JOYSTICK_CENTER));
+	//Serial.println((String)"LX: " + (-lx * JOYSTICK_TRAVEL + JOYSTICK_CENTER) + " | LY: " + (int16_t)(ly * JOYSTICK_TRAVEL + JOYSTICK_CENTER));
 	
 	rx = lerp(rx, axisRX.processAxis(analogRead(PIN_A_RX)), 0.5);
 	ry = lerp(ry, -axisRY.processAxis(analogRead(PIN_A_RY)), 0.5);
@@ -200,7 +206,6 @@ void loop()
 	rotSly = slx * -sin225 + sly * cos225;
 
 	Mouse.move(rotSlx * 32, rotSly * 32, 0);
-
 	
 	joystick.setS0Axis(rotSlx * JOYSTICK_TRAVEL + JOYSTICK_CENTER);	
 	joystick.setS1Axis(rotSly * JOYSTICK_TRAVEL + JOYSTICK_CENTER);
@@ -229,6 +234,29 @@ void loop()
 
 
 	joystick.sendState();
+
+	byte mBtns = 0;
+	if (!digitalRead(PIN_SLB)) mBtns |= MOUSE_LEFT;
+	if (!digitalRead(PIN_SRB)) mBtns |= MOUSE_RIGHT;
+	
+
+	if (mBtns != mouseBtns)
+	{
+		if (Mouse.isPressed(MOUSE_LEFT) && !(mBtns & MOUSE_LEFT))
+			Mouse.release(MOUSE_LEFT);
+		else if (!Mouse.isPressed(MOUSE_LEFT) && (mBtns & MOUSE_LEFT))
+			Mouse.press(MOUSE_LEFT);
+		
+		if (Mouse.isPressed(MOUSE_RIGHT) && !(mBtns & MOUSE_RIGHT))
+			Mouse.release(MOUSE_RIGHT);
+		else if (!Mouse.isPressed(MOUSE_RIGHT) && (mBtns & MOUSE_RIGHT))
+			Mouse.press(MOUSE_RIGHT);
+
+		
+		mouseBtns = mBtns;
+	}
+
+
 
 	delay(16);
 }

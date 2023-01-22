@@ -21,7 +21,7 @@
 #ifndef JOYSTICK_h
 #define JOYSTICK_h
 
-#include <DynamicHID/DynamicHID.h>
+#include "DynamicHID/DynamicHID.h"
 
 #if ARDUINO < 10606
 #error The Joystick library requires Arduino IDE 1.6.6 or greater. Please update your IDE.
@@ -44,8 +44,8 @@
 
 #define JOYSTICK_DEFAULT_REPORT_ID         0x03
 #define JOYSTICK_DEFAULT_BUTTON_COUNT        32
-#define JOYSTICK_DEFAULT_AXIS_MINIMUM         0
-#define JOYSTICK_DEFAULT_AXIS_MAXIMUM      1023
+#define JOYSTICK_DEFAULT_AXIS_MINIMUM		  0
+#define JOYSTICK_DEFAULT_AXIS_MAXIMUM     65535
 #define JOYSTICK_DEFAULT_SIMULATOR_MINIMUM    0
 #define JOYSTICK_DEFAULT_SIMULATOR_MAXIMUM 1023
 #define JOYSTICK_DEFAULT_HATSWITCH_COUNT      2
@@ -55,11 +55,34 @@
 #define JOYSTICK_TYPE_GAMEPAD              0x05
 #define JOYSTICK_TYPE_MULTI_AXIS           0x08
 
+
+
+
+#if !defined(_JSTICK_MODES)
+#define _JSTICK_MODES
+
+#define JOUTPUT_AXIS_ANDROID_MIN 0
+#define JOUTPUT_AXIS_ANDROID_MAX 65535
+#define JOUTPUT_AXIS_WIN_MIN 0
+#define JOUTPUT_AXIS_WIN_MAX 32767
+
+#define JOUTPUT_AXIS_MIN(m) (m == Mode_WIN ? JOUTPUT_AXIS_WIN_MIN : m == Mode_ANDROID ? JOUTPUT_AXIS_ANDROID_MIN : JOYSTICK_DEFAULT_AXIS_MINIMUM)
+#define JOUTPUT_AXIS_MAX(m) (m == Mode_WIN ? JOUTPUT_AXIS_WIN_MAX : m == Mode_ANDROID ? JOUTPUT_AXIS_ANDROID_MAX : JOYSTICK_DEFAULT_AXIS_MAXIMUM)
+
+enum JoystickMode
+{
+	Mode_WIN = 0,
+	Mode_ANDROID = 1
+};
+
+
+#endif // _JSTICK_MODES
+
 class Joystick_
 {
 private:
 
-    // Joystick State
+	// Joystick State
 	int16_t	                 _xAxis;
 	int16_t	                 _yAxis;
 	int16_t	                 _zAxis;
@@ -74,12 +97,12 @@ private:
 	int16_t					 _brake;
 	int16_t					 _steering;
 	int16_t	                 _hatSwitchValues[JOYSTICK_HATSWITCH_COUNT_MAXIMUM];
-    uint8_t                 *_buttonValues = NULL;
+	uint8_t                 *_buttonValues = NULL;
 
-    // Joystick Settings
-    bool                     _autoSendState;
-    uint8_t                  _buttonCount;
-    uint8_t                  _buttonValuesArraySize = 0;
+	// Joystick Settings
+	bool                     _autoSendState;
+	uint8_t                  _buttonCount;
+	uint8_t                  _buttonValuesArraySize = 0;
 	uint8_t					 _hatSwitchCount;
 	uint8_t					 _includeAxisFlags;
 	uint8_t					 _includeSimulatorFlags;
@@ -119,10 +142,15 @@ protected:
 	int buildAndSetSimulationValue(bool includeValue, int16_t value, int16_t valueMinimum, int16_t valueMaximum, uint8_t dataLocation[]);
 
 public:
+
+
+	JoystickMode joystick_mode;
+
+
 	Joystick_(
 		uint8_t hidReportId = JOYSTICK_DEFAULT_REPORT_ID,
 		uint8_t joystickType = JOYSTICK_TYPE_JOYSTICK,
-        uint8_t buttonCount = JOYSTICK_DEFAULT_BUTTON_COUNT,
+		uint8_t buttonCount = JOYSTICK_DEFAULT_BUTTON_COUNT,
 		uint8_t hatSwitchCount = JOYSTICK_DEFAULT_HATSWITCH_COUNT,
 		bool includeXAxis = true,
 		bool includeYAxis = true,
@@ -232,6 +260,11 @@ public:
 	void setHatSwitch(int8_t hatSwitch, int16_t value);
 
 	void sendState();
+
+
+	int16_t GetAxisOutputMin() { return JOUTPUT_AXIS_MIN(joystick_mode); }//0 // was -32767
+	int16_t GetAxisOutputMax() { return JOUTPUT_AXIS_MAX(joystick_mode); }//32767
+
 };
 
 #endif // !defined(_USING_DYNAMIC_HID)
