@@ -44,8 +44,8 @@
 
 #define JOYSTICK_DEFAULT_REPORT_ID         0x03
 #define JOYSTICK_DEFAULT_BUTTON_COUNT        32
-#define JOYSTICK_DEFAULT_AXIS_MINIMUM		  0
-#define JOYSTICK_DEFAULT_AXIS_MAXIMUM     65535
+#define JOYSTICK_DEFAULT_AXIS_MINIMUM	 -32767
+#define JOYSTICK_DEFAULT_AXIS_MAXIMUM     32767
 #define JOYSTICK_DEFAULT_SIMULATOR_MINIMUM    0
 #define JOYSTICK_DEFAULT_SIMULATOR_MAXIMUM 1023
 #define JOYSTICK_DEFAULT_HATSWITCH_COUNT      2
@@ -58,16 +58,24 @@
 
 
 
-#if !defined(_JSTICK_MODES)
-#define _JSTICK_MODES
+
+
+#define JOUTPUT_AXIS_WIN_MIN -32767
+#define JOUTPUT_AXIS_WIN_MIN_HID_HI 0x80
+#define JOUTPUT_AXIS_WIN_MIN_HID_LO 0x01
+
+#define JOUTPUT_AXIS_WIN_MAX 32767
+#define JOUTPUT_AXIS_WIN_MAX_HID_HI 0x7F
+#define JOUTPUT_AXIS_WIN_MAX_HID_LO 0xFF
+
 
 #define JOUTPUT_AXIS_ANDROID_MIN 0
-#define JOUTPUT_AXIS_ANDROID_MAX 65535
-#define JOUTPUT_AXIS_WIN_MIN 0
-#define JOUTPUT_AXIS_WIN_MAX 32767
+#define JOUTPUT_AXIS_ANDROID_MIN_HID_HI 0x00
+#define JOUTPUT_AXIS_ANDROID_MIN_HID_LO 0x00
 
-#define JOUTPUT_AXIS_MIN(m) (m == Mode_WIN ? JOUTPUT_AXIS_WIN_MIN : m == Mode_ANDROID ? JOUTPUT_AXIS_ANDROID_MIN : JOYSTICK_DEFAULT_AXIS_MINIMUM)
-#define JOUTPUT_AXIS_MAX(m) (m == Mode_WIN ? JOUTPUT_AXIS_WIN_MAX : m == Mode_ANDROID ? JOUTPUT_AXIS_ANDROID_MAX : JOYSTICK_DEFAULT_AXIS_MAXIMUM)
+#define JOUTPUT_AXIS_ANDROID_MAX 65535
+#define JOUTPUT_AXIS_ANDROID_MAX_HID_HI 0xFF
+#define JOUTPUT_AXIS_ANDROID_MAX_HID_LO 0xFF
 
 enum JoystickMode
 {
@@ -75,8 +83,6 @@ enum JoystickMode
 	Mode_ANDROID = 1
 };
 
-
-#endif // _JSTICK_MODES
 
 class Joystick_
 {
@@ -101,6 +107,7 @@ private:
 
 	// Joystick Settings
 	bool                     _autoSendState;
+	uint8_t					_joystickType;
 	uint8_t                  _buttonCount;
 	uint8_t                  _buttonValuesArraySize = 0;
 	uint8_t					 _hatSwitchCount;
@@ -147,7 +154,9 @@ public:
 	JoystickMode joystick_mode;
 
 
+
 	Joystick_(
+		JoystickMode mode = Mode_WIN,
 		uint8_t hidReportId = JOYSTICK_DEFAULT_REPORT_ID,
 		uint8_t joystickType = JOYSTICK_TYPE_JOYSTICK,
 		uint8_t buttonCount = JOYSTICK_DEFAULT_BUTTON_COUNT,
@@ -165,6 +174,8 @@ public:
 		bool includeAccelerator = true,
 		bool includeBrake = true,
 		bool includeSteering = true);
+
+	void BuildHID(bool includeXAxis, bool includeYAxis, bool includeZAxis, bool includeRxAxis, bool includeRyAxis, bool includeRzAxis, bool includeS0Axis, bool includeS1Axis, bool includeRudder, bool includeThrottle, bool includeAccelerator, bool includeBrake, bool includeSteering, const uint8_t& joystickType, const uint8_t& buttonCount);
 
 	void begin(bool initAutoSendState = true);
 	void end();
@@ -262,9 +273,14 @@ public:
 	void sendState();
 
 
-	int16_t GetAxisOutputMin() { return JOUTPUT_AXIS_MIN(joystick_mode); }//0 // was -32767
-	int16_t GetAxisOutputMax() { return JOUTPUT_AXIS_MAX(joystick_mode); }//32767
-
+	int16_t GetAxisOutputMin() { return joystick_mode == Mode_ANDROID ? JOUTPUT_AXIS_ANDROID_MIN : JOUTPUT_AXIS_WIN_MIN; }
+	int16_t GetAxisOutputMax() { return joystick_mode == Mode_ANDROID ? JOUTPUT_AXIS_ANDROID_MAX : JOUTPUT_AXIS_WIN_MAX; }
+	
+	uint8_t GetHIDAxisOutputMinLo() { return joystick_mode == Mode_ANDROID ? JOUTPUT_AXIS_ANDROID_MIN_HID_LO : JOUTPUT_AXIS_WIN_MIN_HID_LO; }
+	uint8_t GetHIDAxisOutputMinHi() { return joystick_mode == Mode_ANDROID ? JOUTPUT_AXIS_ANDROID_MIN_HID_HI : JOUTPUT_AXIS_WIN_MIN_HID_HI; }
+	uint8_t GetHIDAxisOutputMaxLo() { return joystick_mode == Mode_ANDROID ? JOUTPUT_AXIS_ANDROID_MAX_HID_LO : JOUTPUT_AXIS_WIN_MAX_HID_LO; }
+	uint8_t GetHIDAxisOutputMaxHi() { return joystick_mode == Mode_ANDROID ? JOUTPUT_AXIS_ANDROID_MAX_HID_HI : JOUTPUT_AXIS_WIN_MAX_HID_HI; }
+	
 };
 
 #endif // !defined(_USING_DYNAMIC_HID)

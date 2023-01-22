@@ -38,12 +38,6 @@
 #define JOYSTICK_TRAVEL 32767 // should be half of the range
 #define JOYSTICK_CENTER 0
 
-Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK,
-								12, 2,					//btns, hats
-								true, true, true, true,	// X (lx), Y (ly), Z (rx), Rx (ry)
-								true, true, true, true,	// Ry (slx), Rz (sly), s0 (srx), s1(sry)
-								false, false, false		//accel, brake, steering
-							);
 
 class AxisCalibration
 {
@@ -108,11 +102,19 @@ AxisCalibration axisSRY = AxisCalibration(980, 2020, 3220, 50);
 
 double cos225, sin225;
 
+Joystick_ joystick;
 
 void setup() 
 {
 	// select mode based on something (TBD)... might neeo a button held down at startup or something
-
+	joystick = Joystick_(Mode_WIN,
+		JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTICK,
+		12, 2,					//btns, hats
+		true, true, true, true,	// X (lx), Y (ly), Z (rx), Rx (ry)
+		true, true, true, true,	// Ry (slx), Rz (sly), s0 (srx), s1(sry)
+		false, false, false		//accel, brake, steering
+	);
+	
 	pinMode(LED_BUILTIN, OUTPUT);
 	
 	pinMode(A0, INPUT_PULLUP);
