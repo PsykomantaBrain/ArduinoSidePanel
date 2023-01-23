@@ -73,8 +73,8 @@
 #define JOUTPUT_AXIS_ANDROID_MIN_HID_HI 0x00
 #define JOUTPUT_AXIS_ANDROID_MIN_HID_LO 0x00
 
-#define JOUTPUT_AXIS_ANDROID_MAX 65535
-#define JOUTPUT_AXIS_ANDROID_MAX_HID_HI 0xFF
+#define JOUTPUT_AXIS_ANDROID_MAX 32767
+#define JOUTPUT_AXIS_ANDROID_MAX_HID_HI 0x7F
 #define JOUTPUT_AXIS_ANDROID_MAX_HID_LO 0xFF
 
 enum JoystickMode
@@ -276,6 +276,10 @@ public:
 	int16_t GetAxisOutputMin() { return joystick_mode == Mode_ANDROID ? JOUTPUT_AXIS_ANDROID_MIN : JOUTPUT_AXIS_WIN_MIN; }
 	int16_t GetAxisOutputMax() { return joystick_mode == Mode_ANDROID ? JOUTPUT_AXIS_ANDROID_MAX : JOUTPUT_AXIS_WIN_MAX; }
 	
+
+	int16_t GetAxisTravel() { return joystick_mode == Mode_ANDROID ? 32767 : 32767; }
+	int16_t GetAxisCenter() { return joystick_mode == Mode_ANDROID ? 32767 : 0; }
+
 	uint8_t GetHIDAxisOutputMinLo() { return joystick_mode == Mode_ANDROID ? JOUTPUT_AXIS_ANDROID_MIN_HID_LO : JOUTPUT_AXIS_WIN_MIN_HID_LO; }
 	uint8_t GetHIDAxisOutputMinHi() { return joystick_mode == Mode_ANDROID ? JOUTPUT_AXIS_ANDROID_MIN_HID_HI : JOUTPUT_AXIS_WIN_MIN_HID_HI; }
 	uint8_t GetHIDAxisOutputMaxLo() { return joystick_mode == Mode_ANDROID ? JOUTPUT_AXIS_ANDROID_MAX_HID_LO : JOUTPUT_AXIS_WIN_MAX_HID_LO; }

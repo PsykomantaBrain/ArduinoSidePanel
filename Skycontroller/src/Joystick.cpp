@@ -95,6 +95,18 @@ Joystick_::Joystick_(
 void Joystick_::begin(bool initAutoSendState)
 {
 
+	setXAxisRange(GetAxisOutputMin(), GetAxisOutputMax());
+	setYAxisRange(GetAxisOutputMin(), GetAxisOutputMax());
+	setZAxisRange(GetAxisOutputMin(), GetAxisOutputMax());
+	
+	setRxAxisRange(GetAxisOutputMin(), GetAxisOutputMax());
+	setRyAxisRange(GetAxisOutputMin(), GetAxisOutputMax());
+	setRzAxisRange(GetAxisOutputMin(), GetAxisOutputMax());
+	
+	setS0AxisRange(GetAxisOutputMin(), GetAxisOutputMax());
+	setS1AxisRange(GetAxisOutputMin(), GetAxisOutputMax());
+
+
 	BuildHID(_includeAxisFlags & JOYSTICK_INCLUDE_X_AXIS,
 				_includeAxisFlags & JOYSTICK_INCLUDE_Y_AXIS,
 				_includeAxisFlags & JOYSTICK_INCLUDE_Z_AXIS,
