@@ -21,8 +21,8 @@
 
 
 
-#include <LiquidCrystal_I2C.h>
-#include <Wire.h>
+//#include <LiquidCrystal_I2C.h>
+//#include <Wire.h>
 
 #include "Joystick.h"
 #include <Mouse.h>
@@ -37,58 +37,58 @@ Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTIC
 //the first parameter is the I2C address
 //the second parameter is how many rows are on your screen
 //the third parameter is how many columns are on your screen
-LiquidCrystal_I2C lcd(0x27, 16, 2);
+//LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-byte cc0[8] = {
-	B11111,
-	B00000,
-	B00000,
-	B00000,
-	B00000,
-	B00000,
-	B00000,
-	B00000,
-};
-byte cc1[8] = {
-	B11000,
-	B00100,
-	B00010,
-	B00001,    
-	B10000,
-	B01000,
-	B00000,
-	B00000,
-};
-byte cc2[8] = {
-	B00011,    
-	B00100,
-	B01000,
-	B10000,
-	B00001,    
-	B00010,
-	B00000,
-	B00000,
-};
-byte cc3[8] = {
-	B11111,
-	B00000,
-	B00000,
-	B11111,
-	B00000,
-	B00000,
-	B00000,
-	B00000,
-};
-byte cc4[8] = {
-	B00000,
-	B00000,
-	B00000,
-	B00000,
-	B00000,
-	B00000,    
-	B00000,
-	B00000,    
-};
+//byte cc0[8] = {
+//	B11111,
+//	B00000,
+//	B00000,
+//	B00000,
+//	B00000,
+//	B00000,
+//	B00000,
+//	B00000,
+//};
+//byte cc1[8] = {
+//	B11000,
+//	B00100,
+//	B00010,
+//	B00001,    
+//	B10000,
+//	B01000,
+//	B00000,
+//	B00000,
+//};
+//byte cc2[8] = {
+//	B00011,    
+//	B00100,
+//	B01000,
+//	B10000,
+//	B00001,    
+//	B00010,
+//	B00000,
+//	B00000,
+//};
+//byte cc3[8] = {
+//	B11111,
+//	B00000,
+//	B00000,
+//	B11111,
+//	B00000,
+//	B00000,
+//	B00000,
+//	B00000,
+//};
+//byte cc4[8] = {
+//	B00000,
+//	B00000,
+//	B00000,
+//	B00000,
+//	B00000,
+//	B00000,    
+//	B00000,
+//	B00000,    
+//};
 
 
 //High impedance pin mode
@@ -202,26 +202,26 @@ void setup()
 {
 	
 
-	Wire.begin();
-	lcd.init();
-	
-	lcd.backlight();
-	lcd.setBacklight(128);
-	
-	delay(2000);
-	
-	lcd.createChar(0, cc0);    
-	lcd.createChar(1, cc1);   
-	lcd.createChar(2, cc2);   
-	lcd.createChar(3, cc3);   
-	lcd.createChar(4, cc4);   
-	
-	
-	
-	lcd.setCursor(0, 0);
-	lcd.print(" HRV Simviator ");
-	lcd.setCursor(0, 1);
-	lcd.print("  \x08\x08\x03\x03\x01\x04\x02\x03\x03\x08\x08  ");
+	//Wire.begin();
+	//lcd.init();
+	//
+	//lcd.backlight();
+	//lcd.setBacklight(128);
+	//
+	//delay(2000);
+	//
+	//lcd.createChar(0, cc0);    
+	//lcd.createChar(1, cc1);   
+	//lcd.createChar(2, cc2);   
+	//lcd.createChar(3, cc3);   
+	//lcd.createChar(4, cc4);   
+	//
+	//
+	//
+	//lcd.setCursor(0, 0);
+	//lcd.print(" HRV Simviator ");
+	//lcd.setCursor(0, 1);
+	//lcd.print("  \x08\x08\x03\x03\x01\x04\x02\x03\x03\x08\x08  ");
 
 
 
@@ -407,7 +407,7 @@ void loop()
 	joystick.setButton(33, !digitalRead(16)); // trim dn
 	joystick.setButton(34, !digitalRead(17)); // trim up
 
-	delay(16);
+	delay(24);
 }
 
 
