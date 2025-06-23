@@ -245,7 +245,7 @@ void loop()
 		}
 		joystick.setButton(30, toggle2TLast > millis());
 	}
-	joystick.setButton(41, !muxShield.digitalReadMS(BTN30));
+	joystick.setButton(41, muxShield.digitalReadMS(BTN30));
 
 	// button 31 is the side switch with cover
 	if (!muxShield.digitalReadMS(BTN28))

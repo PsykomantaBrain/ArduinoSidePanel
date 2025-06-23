@@ -15,11 +15,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="SidePanel.ino" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="__vm\.SidePanel.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SidePanel.ino" />
   </ItemGroup>
 </Project>
