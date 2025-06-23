@@ -1,9 +1,9 @@
 // Visual Micro is in vMicro>General>Tutorial Mode
 // 
 /*
-    Name:       Yoke.ino
-    Created:	10/21/2020 12:03:28 PM
-    Author:     BIGRIGMK12\ffala
+	Name:       Yoke.ino
+	Created:	10/21/2020 12:03:28 PM
+	Author:     BIGRIGMK12\ffala
 */
 
 // Define User Types below here or use a .h file
@@ -40,54 +40,54 @@ Joystick_ joystick = Joystick_(JOYSTICK_DEFAULT_REPORT_ID, JOYSTICK_TYPE_JOYSTIC
 LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 byte cc0[8] = {
-    B11111,
-    B00000,
-    B00000,
-    B00000,
-    B00000,
-    B00000,
-    B00000,
-    B00000,
+	B11111,
+	B00000,
+	B00000,
+	B00000,
+	B00000,
+	B00000,
+	B00000,
+	B00000,
 };
 byte cc1[8] = {
-    B11000,
-    B00100,
-    B00010,
-    B00001,    
-    B10000,
-    B01000,
-    B00000,
-    B00000,
+	B11000,
+	B00100,
+	B00010,
+	B00001,    
+	B10000,
+	B01000,
+	B00000,
+	B00000,
 };
 byte cc2[8] = {
-    B00011,    
-    B00100,
-    B01000,
-    B10000,
-    B00001,    
-    B00010,
-    B00000,
-    B00000,
+	B00011,    
+	B00100,
+	B01000,
+	B10000,
+	B00001,    
+	B00010,
+	B00000,
+	B00000,
 };
 byte cc3[8] = {
-    B11111,
-    B00000,
-    B00000,
-    B11111,
-    B00000,
-    B00000,
-    B00000,
-    B00000,
+	B11111,
+	B00000,
+	B00000,
+	B11111,
+	B00000,
+	B00000,
+	B00000,
+	B00000,
 };
 byte cc4[8] = {
-    B00000,
-    B00000,
-    B00000,
-    B00000,
-    B00000,
-    B00000,    
-    B00000,
-    B00000,    
+	B00000,
+	B00000,
+	B00000,
+	B00000,
+	B00000,
+	B00000,    
+	B00000,
+	B00000,    
 };
 
 
@@ -124,52 +124,53 @@ byte cc4[8] = {
 class AxisCalibration
 {
 public:
-    double max;
-    double min;
-    double center;
-    double deadzone;
+	double max;
+	double min;
+	double center;
+	double deadzone;
 
-    AxisCalibration(double pMin, double pCenter, double pMax, double dz = 0.0)
-    {
-        max = pMax;
-        min = pMin;
-        center = pCenter;
-        deadzone = dz;
-    }
-
-
-    double processAxis(double axis, double response = 1.0)
-    {        
-        if (abs(axis - center) < deadzone)
-            return 0.5;
-
-        if (axis < center)
-        {
-            axis = map(axis + deadzone, min + deadzone, center, -1.0, 0.0);
-        }
-        if (axis > center)
-        {
-            axis = map(axis - deadzone, center, max - deadzone, 0.0, 1.0);
-        }
-
-        axis = pow(abs(axis), response) * sign(axis);
-        axis = constrain(axis, -1.0, 1.0);
+	AxisCalibration(double pMin, double pCenter, double pMax, double dz = 0.0)
+	{
+		max = pMax;
+		min = pMin;
+		center = pCenter;
+		deadzone = dz;
+	}
 
 
-        return axis * 0.5 + 0.5;
-    }
+	double processAxis(double axis, double response = 1.0)
+	{        
+		if (abs(axis - center) < deadzone)
+			return 0.5;
 
-    double lerp(double v0, double v1, double t)
-    {
-        return (1.0 - t) * v0 + t * v1;
-    }
+		if (axis < center)
+		{
+			axis = map(axis + deadzone, min + deadzone, center, -1.0, 0.0);
+		}
+		if (axis > center)
+		{
+			axis = map(axis - deadzone, center, max - deadzone, 0.0, 1.0);
+		}
 
-    double map(double x, double in_min, double in_max, double out_min, double out_max)
-    {
-        return (x - in_min) / (in_max - in_min) * (out_max - out_min) + out_min;
-    }
+		axis = pow(abs(axis), response) * sign(axis);
+		axis = constrain(axis, -1.0, 1.0);
+
+
+		return axis * 0.5 + 0.5;
+	}
+
+	double lerp(double v0, double v1, double t)
+	{
+		return (1.0 - t) * v0 + t * v1;
+	}
+
+	double map(double x, double in_min, double in_max, double out_min, double out_max)
+	{
+		return (x - in_min) / (in_max - in_min) * (out_max - out_min) + out_min;
+	}
 };
 
+AxisCalibration axisPitch = AxisCalibration(1050.0, 2200.0, 3155.0, 0.0);
 
 AxisCalibration axisRHX = AxisCalibration(1120.0, 2060.0, 3220.0, 50.0);
 AxisCalibration axisRHY = AxisCalibration(860.0, 2048.0, 3200.0, 50.0);
@@ -199,210 +200,214 @@ int f13;
 
 void setup()
 {
-    
+	
 
-    Wire.begin();
-    lcd.init();
-    
-    lcd.backlight();
-    lcd.setBacklight(128);
-    
-    delay(2000);
-    
-    lcd.createChar(0, cc0);    
-    lcd.createChar(1, cc1);   
-    lcd.createChar(2, cc2);   
-    lcd.createChar(3, cc3);   
-    lcd.createChar(4, cc4);   
-    
-    
-    
-    lcd.setCursor(0, 0);
-    lcd.print(" HRV Simviator ");
-    lcd.setCursor(0, 1);
-    lcd.print("  \x08\x08\x03\x03\x01\x04\x02\x03\x03\x08\x08  ");
-
-
-
-    analogReadResolution(12);
-    
-    joystick.begin();
-    joystick.setXAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
-    joystick.setYAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
-    joystick.setZAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
-    joystick.setRxAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
-    joystick.setRyAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
-    joystick.setRzAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
-
-    pinMode(2, INPUT_PULLUP);
-    pinMode(3, INPUT_PULLUP);
-    pinMode(4, INPUT_PULLUP);
-    pinMode(5, INPUT_PULLUP);
-    pinMode(6, INPUT_PULLUP);
-    pinMode(7, INPUT_PULLUP);
-
-    pinMode(14, INPUT_PULLUP);
-    pinMode(15, INPUT_PULLUP);
-    pinMode(16, INPUT_PULLUP);
-    pinMode(17, INPUT_PULLUP);
-
-    pinMode(22, INPUT_PULLUP);
-    pinMode(24, INPUT_PULLUP);
-    pinMode(26, INPUT_PULLUP);
-    pinMode(28, INPUT_PULLUP);
-    pinMode(29, INPUT_PULLUP);
-    pinMode(30, INPUT_PULLUP);
-    pinMode(31, INPUT_PULLUP);
-    pinMode(32, INPUT_PULLUP);
-    pinMode(33, INPUT_PULLUP);
-    pinMode(34, INPUT_PULLUP);
-    pinMode(35, INPUT_PULLUP);
-    pinMode(36, INPUT_PULLUP);
-
-    pinMode(39, INPUT_PULLUP);
-    pinMode(41, INPUT_PULLUP);
-    pinMode(43, INPUT_PULLUP);
-    pinMode(45, INPUT_PULLUP);
-    pinMode(47, INPUT_PULLUP);
-    pinMode(49, INPUT_PULLUP);
-    pinMode(51, INPUT_PULLUP);
+	Wire.begin();
+	lcd.init();
+	
+	lcd.backlight();
+	lcd.setBacklight(128);
+	
+	delay(2000);
+	
+	lcd.createChar(0, cc0);    
+	lcd.createChar(1, cc1);   
+	lcd.createChar(2, cc2);   
+	lcd.createChar(3, cc3);   
+	lcd.createChar(4, cc4);   
+	
+	
+	
+	lcd.setCursor(0, 0);
+	lcd.print(" HRV Simviator ");
+	lcd.setCursor(0, 1);
+	lcd.print("  \x08\x08\x03\x03\x01\x04\x02\x03\x03\x08\x08  ");
 
 
-    // rotary inputs 
-    pinMode(RTR0_A, INPUT_PULLUP);
-    pinMode(RTR0_B, INPUT_PULLUP);
-    pinMode(RTR0_Ck, INPUT_PULLUP);
 
-    rot0_Tback = 0;
-    rot0_Tfwd = 0;
-    attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0, CHANGE);
+	analogReadResolution(12);
+	
+	joystick.begin();
+	joystick.setXAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+	joystick.setYAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+	joystick.setZAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+	joystick.setRxAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+	joystick.setRyAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
+	joystick.setRzAxisRange(JOYSTICK_RANGE_MIN, JOYSTICK_RANGE_MAX);
 
-    rot1_Tback = 0;
-    rot1_Tfwd = 0;
-    attachInterrupt(digitalPinToInterrupt(RTR1_A), interrupt_ROT1, CHANGE);
+	pinMode(2, INPUT_PULLUP);
+	pinMode(3, INPUT_PULLUP);
+	pinMode(4, INPUT_PULLUP);
+	pinMode(5, INPUT_PULLUP);
+	pinMode(6, INPUT_PULLUP);
+	pinMode(7, INPUT_PULLUP);
 
-    Mouse.begin();
+	pinMode(14, INPUT_PULLUP);
+	pinMode(15, INPUT_PULLUP);
+	pinMode(16, INPUT_PULLUP);
+	pinMode(17, INPUT_PULLUP);
+
+	pinMode(22, INPUT_PULLUP);
+	pinMode(24, INPUT_PULLUP);
+	pinMode(26, INPUT_PULLUP);
+	pinMode(28, INPUT_PULLUP);
+	pinMode(29, INPUT_PULLUP);
+	pinMode(30, INPUT_PULLUP);
+	pinMode(31, INPUT_PULLUP);
+	pinMode(32, INPUT_PULLUP);
+	pinMode(33, INPUT_PULLUP);
+	pinMode(34, INPUT_PULLUP);
+	pinMode(35, INPUT_PULLUP);
+	pinMode(36, INPUT_PULLUP);
+
+	pinMode(39, INPUT_PULLUP);
+	pinMode(41, INPUT_PULLUP);
+	pinMode(43, INPUT_PULLUP);
+	pinMode(45, INPUT_PULLUP);
+	pinMode(47, INPUT_PULLUP);
+	pinMode(49, INPUT_PULLUP);
+	pinMode(51, INPUT_PULLUP);
 
 
-   // SerialUSB.begin(115200);
+	// rotary inputs 
+	pinMode(RTR0_A, INPUT_PULLUP);
+	pinMode(RTR0_B, INPUT_PULLUP);
+	pinMode(RTR0_Ck, INPUT_PULLUP);
+
+	rot0_Tback = 0;
+	rot0_Tfwd = 0;
+	attachInterrupt(digitalPinToInterrupt(RTR0_A), interrupt_ROT0, CHANGE);
+
+	rot1_Tback = 0;
+	rot1_Tfwd = 0;
+	attachInterrupt(digitalPinToInterrupt(RTR1_A), interrupt_ROT1, CHANGE);
+
+	Mouse.begin();
+
+
+	//SerialUSB.begin(115200);
 
 }
 
 uint32_t mils;
 
-int32_t pitchFaderA, pitchFaderB, pitch;
+//int32_t pitchFaderA, pitchFaderB,
+double pitch;
 uint32_t roll;
 
 // Add the main program code into the continuous loop() function
 void loop()
 {
-    mils = millis();
+	mils = millis();
 
-    pitchFaderA = lerp(pitchFaderA, analogRead(A0), 0.4);
-    pitchFaderB = lerp(pitchFaderB, analogRead(A1), 0.4);
-    
-    pitch = ((pitchFaderA - pitchFaderB) + JOYSTICK_RANGE_MAX) / 2.0;
-    joystick.setYAxis(pitch);
+	//pitchFaderA = lerp(pitchFaderA, analogRead(A0), 0.4);
+	//pitchFaderB = lerp(pitchFaderB, analogRead(A1), 0.4);
+	
+	//pitch = ((pitchFaderA - pitchFaderB) + JOYSTICK_RANGE_MAX) / 2.0;
+	pitch = lerp(pitch, axisPitch.processAxis(analogRead(A1)), 0.2) ;
+	joystick.setYAxis(pitch * JOYSTICK_RANGE_MAX);
+
+	//SerialUSB.println((String)"A0: " + analogRead(A0) + "   |  A1: " + analogRead(A1) + "  | pitch: " + pitch);
+	
+	roll = JOYSTICK_RANGE_MAX - analogRead(A7);
+	joystick.setXAxis(roll);
    
-    
-    roll = JOYSTICK_RANGE_MAX - analogRead(A7);
-    joystick.setXAxis(roll);
-   
 
 
-    // rh buttons
-    joystick.setButton(0, !digitalRead(32));
-    joystick.setButton(1, !digitalRead(36));
-    joystick.setButton(2, !digitalRead(34));
-    
-    // lh buttons
-    joystick.setButton(3, !digitalRead(24));
-    joystick.setButton(4, !digitalRead(22));
-    joystick.setButton(5, !digitalRead(26));
+	// rh buttons
+	joystick.setButton(0, !digitalRead(32));
+	joystick.setButton(1, !digitalRead(36));
+	joystick.setButton(2, !digitalRead(34));
+	
+
+	// lh buttons
+	joystick.setButton(3, !digitalRead(24));
+	joystick.setButton(4, !digitalRead(22));
+	joystick.setButton(5, !digitalRead(26));
 
 
-    // RH thumbstick
-    uint32_t a8 = analogRead(A8);
-    double rx = axisRHX.processAxis(a8);
-    uint32_t a9 = analogRead(A9);
-    double ry = axisRHY.processAxis(a9);
+	// RH thumbstick
+	uint32_t a8 = analogRead(A8);
+	double rx = axisRHX.processAxis(a8);
+	uint32_t a9 = analogRead(A9);
+	double ry = axisRHY.processAxis(a9);
 
-    joystick.setZAxis(rx * JOYSTICK_RANGE_MAX);
-    joystick.setRxAxis(ry * JOYSTICK_RANGE_MAX);
-    joystick.setButton(6, !digitalRead(30));
+	joystick.setZAxis(rx * JOYSTICK_RANGE_MAX);
+	joystick.setRxAxis(ry * JOYSTICK_RANGE_MAX);
+	joystick.setButton(6, !digitalRead(30));
 
 
-    // LH thumbstick
-    uint32_t a4 = analogRead(A4);
-    double lx = axisRHX.processAxis(a4);
-    uint32_t a5 = analogRead(A5);
-    double ly = axisRHY.processAxis(a5);
+	// LH thumbstick
+	uint32_t a4 = analogRead(A4);
+	double lx = axisRHX.processAxis(a4);
+	uint32_t a5 = analogRead(A5);
+	double ly = axisRHY.processAxis(a5);
 
-    joystick.setRyAxis(lx * JOYSTICK_RANGE_MAX);
-    joystick.setRzAxis(ly * JOYSTICK_RANGE_MAX);
-    joystick.setButton(7, !digitalRead(28));
+	joystick.setRyAxis(lx * JOYSTICK_RANGE_MAX);
+	joystick.setRzAxis(ly * JOYSTICK_RANGE_MAX);
+	joystick.setButton(7, !digitalRead(28));
 
-    //SerialUSB.println((String)"A0: " + pitchFaderA + "  |  A1: " + pitchFaderB +"  | pitch: " + pitch);
+	//SerialUSB.println((String)"A0: " + pitchFaderA + "  |  A1: " + pitchFaderB +"  | pitch: " + pitch);
 
 
 
-    // rotary 0 (hdlR)
-    joystick.setButton(Rtr0_Click, digitalRead(RTR0_Ck) == LOW);
-    joystick.setButton(Rtr0_back, rot0_Tback + rotaryPulseTime > mils);
-    joystick.setButton(Rtr0_fwd, rot0_Tfwd + rotaryPulseTime > mils);
+	// rotary 0 (hdlR)
+	joystick.setButton(Rtr0_Click, digitalRead(RTR0_Ck) == LOW);
+	joystick.setButton(Rtr0_back, rot0_Tback + rotaryPulseTime > mils);
+	joystick.setButton(Rtr0_fwd, rot0_Tfwd + rotaryPulseTime > mils);
 
 
-    // rotary 1 (hdlL)
-    joystick.setButton(Rtr1_Click, digitalRead(RTR1_Ck) == LOW);
-    joystick.setButton(Rtr1_back, rot1_Tback + rotaryPulseTime > mils);
-    joystick.setButton(Rtr1_fwd, rot1_Tfwd + rotaryPulseTime > mils);
+	// rotary 1 (hdlL)
+	joystick.setButton(Rtr1_Click, digitalRead(RTR1_Ck) == LOW);
+	joystick.setButton(Rtr1_back, rot1_Tback + rotaryPulseTime > mils);
+	joystick.setButton(Rtr1_fwd, rot1_Tfwd + rotaryPulseTime > mils);
 
-    //rh face buttons
-    //joystick.setButton(9, !digitalRead(33)); // 탎witch btn     
-    if (digitalRead(33) != f13)
-    {
-        // using F13 key instead of a btn press, to get around Discord reading EVERY btn 10 as push-to-talk input.
-        // Now PTT can be mapped to just btn 32 and F13 for all devices.
-        f13 = digitalRead(33);
+	//rh face buttons
+	//joystick.setButton(9, !digitalRead(33)); // 탎witch btn     
+	if (digitalRead(33) != f13)
+	{
+		// using F13 key instead of a btn press, to get around Discord reading EVERY btn 10 as push-to-talk input.
+		// Now PTT can be mapped to just btn 32 and F13 for all devices.
+		f13 = digitalRead(33);
 
-        if (!f13)
-            Keyboard.press(KEY_F13);
-        else
-            Keyboard.release(KEY_F13);
-    }
-    joystick.setButton(10, !digitalRead(29)); // pushbtn 
-    joystick.setButton(11,  !digitalRead(35)); // trim dn
-    joystick.setButton(12, !digitalRead(31)); // trim up
+		if (!f13)
+			Keyboard.press(KEY_F13);
+		else
+			Keyboard.release(KEY_F13);
+	}
+	joystick.setButton(10, !digitalRead(29)); // pushbtn 
+	joystick.setButton(11,  !digitalRead(35)); // trim dn
+	joystick.setButton(12, !digitalRead(31)); // trim up
 
 
 
 
-    // l hdl top face hat+button
-    joystick.setButton(18, !digitalRead(2)); // B
-    joystick.setButton(19, !digitalRead(5)); // U
-    joystick.setButton(20, !digitalRead(4)); // R
-    joystick.setButton(21, !digitalRead(6)); // D
-    joystick.setButton(22, !digitalRead(7)); // L
-    joystick.setButton(23, !digitalRead(3)); // C
+	// l hdl top face hat+button
+	joystick.setButton(18, !digitalRead(2)); // B
+	joystick.setButton(19, !digitalRead(5)); // U
+	joystick.setButton(20, !digitalRead(4)); // R
+	joystick.setButton(21, !digitalRead(6)); // D
+	joystick.setButton(22, !digitalRead(7)); // L
+	joystick.setButton(23, !digitalRead(3)); // C
 
 
 
-    // r hdl top face hat+buttons
-    joystick.setButton(24, !digitalRead(47)); // U
-    joystick.setButton(25, !digitalRead(39)); // R
-    joystick.setButton(26, !digitalRead(41)); // D
-    joystick.setButton(27, !digitalRead(45)); // L
-    joystick.setButton(28, !digitalRead(43)); // C
-    joystick.setButton(29, !digitalRead(51)); // TU
-    joystick.setButton(30, !digitalRead(49)); // TD
+	// r hdl top face hat+buttons
+	joystick.setButton(24, !digitalRead(47)); // U
+	joystick.setButton(25, !digitalRead(39)); // R
+	joystick.setButton(26, !digitalRead(41)); // D
+	joystick.setButton(27, !digitalRead(45)); // L
+	joystick.setButton(28, !digitalRead(43)); // C
+	joystick.setButton(29, !digitalRead(51)); // TU
+	joystick.setButton(30, !digitalRead(49)); // TD
 
-    //lh face buttons
-    joystick.setButton(32, !digitalRead(14)); // 탎witch btn 
-    joystick.setButton(31, !digitalRead(15)); // pushbtn 
-    joystick.setButton(33, !digitalRead(16)); // trim dn
-    joystick.setButton(34, !digitalRead(17)); // trim up
+	//lh face buttons
+	joystick.setButton(32, !digitalRead(14)); // 탎witch btn 
+	joystick.setButton(31, !digitalRead(15)); // pushbtn 
+	joystick.setButton(33, !digitalRead(16)); // trim dn
+	joystick.setButton(34, !digitalRead(17)); // trim up
 
-    delay(16);
+	delay(16);
 }
 
 
@@ -411,50 +416,50 @@ void loop()
 
 void interrupt_ROT0()
 {
-    encoderRead(RTR0_A, RTR0_B, &rot0_a, &rot0_b, &rot0_Tfwd, &rot0_Tback, useScrollWheelRot0);
+	encoderRead(RTR0_A, RTR0_B, &rot0_a, &rot0_b, &rot0_Tfwd, &rot0_Tback, useScrollWheelRot0);
 }
 
 void interrupt_ROT1()
 {
-    encoderRead(RTR1_A, RTR1_B, &rot1_a, &rot1_b, &rot1_Tfwd, &rot1_Tback, useScrollWheelRot1);
+	encoderRead(RTR1_A, RTR1_B, &rot1_a, &rot1_b, &rot1_Tfwd, &rot1_Tback, useScrollWheelRot1);
 }
 
 void encoderRead(int pinA, int pinB, volatile int* a0, volatile int* b0, volatile uint32_t* rot_Tfwd, volatile uint32_t* rot_Tback, bool useScrollWheel)
 {
-    uint32_t mils = millis();
+	uint32_t mils = millis();
 
-    int a = digitalRead(pinA);
-    int b = digitalRead(pinB);
-    
-    if (a != *a0)
-    {
-        *a0 = a;
-        if (b != *b0)
-        {
-            *b0 = b;
+	int a = digitalRead(pinA);
+	int b = digitalRead(pinB);
+	
+	if (a != *a0)
+	{
+		*a0 = a;
+		if (b != *b0)
+		{
+			*b0 = b;
 
-            if (a == b)
-            {
-                if (rot0_Tback + rotaryPulseTime < mils)
-                {
-                    *rot_Tfwd = mils;
-                    if (useScrollWheel) Mouse.move(0, 0, 1);
-                }
-            }
-            else
-            {
-                if (rot0_Tfwd + rotaryPulseTime < mils)
-                {
-                    *rot_Tback = mils;
-                    if (useScrollWheel) Mouse.move(0, 0, -1);
-                }
-            }
-        }
-    }
+			if (a == b)
+			{
+				if (rot0_Tback + rotaryPulseTime < mils)
+				{
+					*rot_Tfwd = mils;
+					if (useScrollWheel) Mouse.move(0, 0, 1);
+				}
+			}
+			else
+			{
+				if (rot0_Tfwd + rotaryPulseTime < mils)
+				{
+					*rot_Tback = mils;
+					if (useScrollWheel) Mouse.move(0, 0, -1);
+				}
+			}
+		}
+	}
 }
 
 
 double lerp(double v0, double v1, double t)
 {
-    return (1.0 - t) * v0 + t * v1;
+	return (1.0 - t) * v0 + t * v1;
 }

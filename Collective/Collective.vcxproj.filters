@@ -15,14 +15,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Collective.ino" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="__vm\.Collective.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="board.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Collective.ino" />
   </ItemGroup>
 </Project>

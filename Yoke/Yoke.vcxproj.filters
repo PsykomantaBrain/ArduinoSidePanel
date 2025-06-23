@@ -15,11 +15,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Yoke.ino" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="__vm\.Yoke.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Yoke.ino" />
   </ItemGroup>
 </Project>

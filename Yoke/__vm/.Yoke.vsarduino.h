@@ -25,6 +25,8 @@
 #define USB_MANUFACTURER "\"HRV
 #define USB_PRODUCT "\"HRV
 #define __cplusplus 201103L
+#pragma diag_suppress=338,2925
+// User Defined Errors to Ignore below... [vm.intellisense.ignore-error-codes]
 #ifdef __CLEARCORE__
 #define __ARMCC_VERSION 6010050
 #define HIDE_FROM_DOXYGEN
