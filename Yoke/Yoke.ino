@@ -170,7 +170,7 @@ public:
 	}
 };
 
-AxisCalibration axisPitch = AxisCalibration(1050.0, 2200.0, 3155.0, 0.0);
+AxisCalibration axisPitch = AxisCalibration(1050.0, 2200.0, 3155.0, 1.0);
 
 AxisCalibration axisRHX = AxisCalibration(1120.0, 2060.0, 3220.0, 50.0);
 AxisCalibration axisRHY = AxisCalibration(860.0, 2048.0, 3200.0, 50.0);
@@ -304,7 +304,7 @@ void loop()
 	//pitchFaderB = lerp(pitchFaderB, analogRead(A1), 0.4);
 	
 	//pitch = ((pitchFaderA - pitchFaderB) + JOYSTICK_RANGE_MAX) / 2.0;
-	pitch = lerp(pitch, axisPitch.processAxis(analogRead(A1)), 0.2) ;
+	pitch = lerp(pitch, axisPitch.processAxis((analogRead(A0) + analogRead(A1)) * 0.5), 0.4) ;
 	joystick.setYAxis(pitch * JOYSTICK_RANGE_MAX);
 
 	//SerialUSB.println((String)"A0: " + analogRead(A0) + "   |  A1: " + analogRead(A1) + "  | pitch: " + pitch);
@@ -407,7 +407,12 @@ void loop()
 	joystick.setButton(33, !digitalRead(16)); // trim dn
 	joystick.setButton(34, !digitalRead(17)); // trim up
 
-	delay(24);
+
+
+	uint32_t dt = millis() - mils;
+
+
+	delay(16u - dt);
 }
 
 
