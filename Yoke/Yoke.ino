@@ -412,7 +412,7 @@ void loop()
 	uint32_t dt = millis() - mils;
 
 
-	delay(16u - dt);
+	delay(24u - dt);
 }
 
 
